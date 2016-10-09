@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-realm" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+	<name>cordova-plugin-realm</name>
+	<description>Realm mobile database plugin for Cordova.</description>
+	<author>Airam Rguez</author>
+	<keywords>realm, database, nosql, mobile, ios, android</keywords>
+	<repo>https://github.com/airamrguez/cordova-plugin-realm</repo>
+	<info>
+		IMPORTANT: This plugin is still under development.
+		Use it on your own risk.
+	</info>
+	<js-module name="Types" src="www/Types.js" />
+	<js-module name="checkArgs" src="www/checkArgs.js" />
+	<js-module name="RealmResults" src="www/RealmResults.js" />
+	<js-module name="QueryBuilder" src="www/QueryBuilder.js" />
+	<js-module name="RealmNativeInstance" src="www/RealmNativeInstance.js" />
+	<js-module name="Realm" src="www/Realm.js">
+		<clobbers target="cordova.plugins.realm" />
+	</js-module>
+
+	<asset src="assets/createRealmObjects.js" target="hooks/createRealmObjects.js" />
+
+	<config-file target="config.xml" parent="/*">
+		<hook type="before_build" src="hooks/createRealmObjects.js" />
+	</config-file>
+
+	<platform name="android">
+		<config-file parent="/*" target="res/xml/config.xml">
+			<feature name="cordova-plugin-realm">
+				<param name="android-package" value="io.github.airamrguez.plugins.realm.cordova-plugin-realm" />
+			</feature>
+		</config-file>
+		<config-file parent="/*" target="AndroidManifest.xml" />
+		<source-file src="src/android/cordova-plugin-realm.java" target-dir="src/io/github/airamrguez/plugins/realm/cordova-plugin-realm" />
+	</platform>
+	<platform name="ios">
+		<framework src="libc++.tbd" />
+		<framework src="src/ios/Realm.framework" custom="true" embed="true" />
+		<framework src="src/ios/RealmSwift.framework" custom="true" embed="true" />
+		
+		<config-file parent="/*" target="config.xml">
+			<feature name="RealmPlugin">
+				<param name="ios-package" value="RealmPlugin" />
+			</feature>
+		</config-file>
+		<header-file src="src/ios/Bridging-Header.h" />
+		<header-file src="src/ios/RealmPlugin.h" />
+		<source-file src="src/ios/RealmPlugin.swift" />
+
+		<source-file src="src/ios/ObjectMapper/Core/FromJSON.swift" />
+		<source-file src="src/ios/ObjectMapper/Core/Map.swift" />
+		<source-file src="src/ios/ObjectMapper/Core/Mappable.swift" />
+		<source-file src="src/ios/ObjectMapper/Core/Mapper.swift" />
+		<source-file src="src/ios/ObjectMapper/Core/Operators.swift" />
+		<source-file src="src/ios/ObjectMapper/Core/ToJSON.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/CustomDateFormatTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/DataTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/DateFormatterTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/DateTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/DictionaryTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/EnumTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/ISO8601DateTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/NSDecimalNumberTransform.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/TransformOf.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/TransformType.swift" />
+		<source-file src="src/ios/ObjectMapper/Transforms/URLTransform.swift" />
+
+		<source-file src="src/ios/ObjectMapper+Realm/ListTransform.swift" />
+		<source-file src="src/ios/Person.swift" />
+		<source-file src="src/ios/Car.swift" />
+		<!--<dependency id="cordova-plugin-add-swift-support" version="1.3.2" />-->
+	</platform>
+	<!--<hook type="after_platform_add" src="hooks/embedframework/addEmbedded.js" />-->
+</plugin>
