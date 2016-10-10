@@ -18,7 +18,7 @@ function checkArg(type, args, paramIndex) {
             });
         }
         if (type.enum) {
-            return type.enum[param] !== undefined
+            return type.enum[param] !== undefined;
         }
         return true;
     }
