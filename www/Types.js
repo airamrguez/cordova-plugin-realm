@@ -1,14 +1,14 @@
 
 var Case = {};
 (function (Case) {
-    Case[Case["SENSITIVE"] = 0] = "SENSITIVE";
-    Case[Case["INSENSITIVE"] = 1] = "INSENSITIVE";
+    Case[Case['SENSITIVE'] = 0] = 'SENSITIVE';
+    Case[Case['INSENSITIVE'] = 1] = 'INSENSITIVE';
 })(Case);
 
 var Sort = {};
 (function (Sort) {
-    Sort[Sort["SENSITIVE"] = 0] = "SENSITIVE";
-    Sort[Sort["INSENSITIVE"] = 1] = "INSENSITIVE";
+    Sort[Sort['SENSITIVE'] = 0] = 'SENSITIVE';
+    Sort[Sort['INSENSITIVE'] = 1] = 'INSENSITIVE';
 })(Sort);
 
 var types = {
