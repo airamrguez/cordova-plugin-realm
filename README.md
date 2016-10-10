@@ -78,7 +78,7 @@ Queries returns a `Result` object.
 		.findAll(function(results) {
 			results.onChange(function(nextResults) {
 				// Print all results
-				results.forEach(r, i) {
+				nextResults.forEach(r, i) {
 					console.log('Result ', i, r);
 				};
 			});
