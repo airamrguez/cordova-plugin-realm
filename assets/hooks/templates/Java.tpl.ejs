@@ -1,0 +1,28 @@
+<%# Schema interfaces %><% schemas.forEach(function(schema) {%>
+class <%= schema.name %> extends RealmObject {
+<%
+    var properties = schema.properties;
+    Object.keys(properties).forEach(function(propName) {
+        var propValue = properties[propName];
+        if (schema.primaryKey === propName) {
+%>
+    @PrimaryKey
+<%
+        }
+        if (typeof propValue === 'string') {
+%>
+    private <%= javaType(propValue) %> <%= propName %>;
+<%
+        } else {
+%>
+    private <%= javaType(propValue.type) %> <%= propName %>;
+<%
+        }
+    });
+%>
+}
+
+<%
+});
+%>
+<%# End of schema interfaces %>
