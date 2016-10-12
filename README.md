@@ -43,7 +43,7 @@ Realm plugin files are exposed under `cordova.plugins.realm`.
 	var Realm = realmPlugin.Realm;
 
 	Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
-		realm.write('Person', json, (success, error) => {
+		realm.write('Person', json, function(success, error) {
 			if (error) {
 				alert('Error committing into the database.');
 				return;
