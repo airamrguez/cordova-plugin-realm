@@ -1,0 +1,16 @@
+{
+  "name": "cordova-plugin-realm",
+  "version": "0.0.1",
+  "description": "Realm mobile database for Cordova",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/airamrguez/cordova-plugin-realm.git",
+    "type": "git"
+  },
+  "author": "Airam <airamrguezrivero@gmail.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "eslint": "^3.7.1",
+    "eslint-config-google": "^0.6.0"
+  }
+}
