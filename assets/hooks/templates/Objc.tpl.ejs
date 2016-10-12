@@ -2,28 +2,22 @@
 <%# List all class as forwarding definitions %><%
 schemas.forEach(function(schema) {
 %>
-@class <%= schema.name %>
+@class <%- schema.name %>
 <% }); %>
 <%# End of forwarding class list %> 
 <%# Schema interfaces %><% schemas.forEach(function(schema) {%>
-@interface <%= schema.name %> : RLMObject
+@interface <%- schema.name %> : RLMObject
 <%
     var properties = schema.properties;
     Object.keys(properties).forEach(function(propName) {
         var propValue = properties[propName];
-        if (typeof propValue === 'string') {
 %>
-@property <%= objectiveCType(propValue) %> <%= propName %>;
+@property <%- objectiveCType(propValue, schemas) %><%- propName %>;
 <%
-        } else {
-%>
-@property <%= objectiveCType(propValue.type) %> <%= propName %>;
-<%
-        }
     });
 %>
 @end
-RLM_ARRAY_TYPE(<%= schema.name %>)
+RLM_ARRAY_TYPE(<%- schema.name %>)
 
 <%
 });
@@ -33,12 +27,12 @@ RLM_ARRAY_TYPE(<%= schema.name %>)
 <%
 schemas.forEach(function(schema) {
 %>
-@implementation <%= schema.name %>
+@implementation <%- schema.name %>
 <%
     if (typeof schema.primaryKey === 'string') {
 %>
-+ (<%= objectiveCType(schema.properties[schema.primaryKey]) %>)primaryKey {
-    return @"<%= schema.primaryKey %>";
++ (<%- objectiveCType(schema.properties[schema.primaryKey]) %>)primaryKey {
+    return @"<%- schema.primaryKey %>";
 }
 <%
     }

@@ -40,7 +40,7 @@
 	<platform name="ios">
 		<framework src="libc++.tbd" />
 		<framework src="src/ios/Realm.framework" custom="true" embed="true" />
-		<framework src="src/ios/RealmSwift.framework" custom="true" embed="true" />
+		<header-file src="src/ios/Models.h" />
 		
 		<config-file parent="/*" target="config.xml">
 			<feature name="RealmPlugin">
