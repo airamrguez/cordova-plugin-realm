@@ -22,7 +22,7 @@
 	<asset src="assets/hooks/ejs.js" target="hooks/realm/ejs.js" />
 	<asset src="assets/hooks/utils.js" target="hooks/realm/utils.js" />
 	<asset src="assets/hooks/templates/Objc.tpl.ejs" target="hooks/realm/templates/Objc.tpl.ejs" />
-	<asset src="assets/hooks/templates/Java.tpl.js" target="hooks/realm/templates/Java.tpl.ejs" />
+	<asset src="assets/hooks/templates/Java.tpl.ejs" target="hooks/realm/templates/Java.tpl.ejs" />
 
 	<config-file target="config.xml" parent="/*">
 		<hook type="before_build" src="hooks/createRealmObjects.js" />
@@ -41,6 +41,22 @@
 		<framework src="libc++.tbd" />
 		<framework src="src/ios/Realm.framework" custom="true" embed="true" />
 		<header-file src="src/ios/Models.h" />
+
+		<header-file src="src/ios/MCJSONDateTransformer.h" />
+		<header-file src="src/ios/MCJSONNonNullStringTransformer.h" />
+		<header-file src="src/ios/MCJSONPrimaryKeyTransformer.h" />
+		<header-file src="src/ios/MCJSONValueTransformer.h" />
+		<header-file src="src/ios/RLMObject+Copying.h" />
+		<header-file src="src/ios/RLMObject+JSON.h" />
+		<source-file src="src/ios/MCJSONDateTransformer.m" />
+		<source-file src="src/ios/MCJSONNonNullStringTransformer.m" />
+		<source-file src="src/ios/MCJSONPrimaryKeyTransformer.m" />
+		<source-file src="src/ios/MCJSONValueTransformer.m" />
+		<source-file src="src/ios/RLMObject+Copying.m" />
+		<source-file src="src/ios/RLMObject+JSON.m" />
+
+		<header-file src="src/ios/RealmPlugin.h" />
+		<source-file src="src/ios/RealmPlugin.m" />
 		
 		<config-file parent="/*" target="config.xml">
 			<feature name="RealmPlugin">
