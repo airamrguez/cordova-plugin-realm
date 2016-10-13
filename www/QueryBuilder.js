@@ -178,8 +178,8 @@ Object.keys(queryMethods).forEach(function(method) {
  * @return {RealmResults} wrapping the results that comes from the native call.
  */
 function onExecuteSuccess(success) {
-  return function(realmResultsId, results) {
-    return new RealmResults(realmResultsId, results);
+  return function(data) {
+    return success(new RealmResults(data.realmResultsId, data.results));
   };
 }
 
