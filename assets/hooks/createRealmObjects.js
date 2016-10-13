@@ -44,6 +44,9 @@ module.exports = function(context) {
         throw new Error('type ' + propType.objectType + ' not found in schema');
       }
       default: {
+        if (typeExists(type, schemas)) {
+          return type + ' *';
+        }
         throw new Error('unsupported type ' + type);
       }
     }
@@ -75,7 +78,7 @@ module.exports = function(context) {
    */
   function objectiveCType(propType, schemas) {
     if (typeof propType === 'string') {
-      return objectiveCTypeForNonOptionalType({type: propType}, schemas);
+      return objectiveCTypeForNonOptionalType({ type: propType }, schemas);
     } else if (typeof propType === 'object') {
       if (propType.optional && propType.type === 'list') {
         throw new Error('A list type cannot be optional. Check propType ' +
