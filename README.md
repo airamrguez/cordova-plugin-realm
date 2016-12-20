@@ -56,6 +56,7 @@ Realm plugin files are exposed under `cordova.plugins.realm`.
 		});
 	});
 ```
+
 ### Queries
 
 Queries are created using the builder pattern.
