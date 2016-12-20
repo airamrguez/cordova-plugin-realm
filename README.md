@@ -16,7 +16,7 @@ cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ### Schema definitions
 
 Create a file named `realmrc.json` and place inside of it schema definitions for your project.
-```json
+```js
 {
 	"schemas": [{
 		"name": "Person",
