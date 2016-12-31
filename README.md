@@ -1,12 +1,15 @@
 # @airamrguez/cordova-plugin-realm
+
 __IMPORTANT__: This is not an official Realm plugin.
 
 This is a Work In Progress. **DO NOT USE IT**. The API will change.
 
 ## About
+
 This plugin provides an interface to Realm mobile database, particularly iOS and Android.
 
 ## Instalation
+
 ```sh
 cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ```
@@ -16,6 +19,7 @@ cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ### Schema definitions
 
 Create a file named `realmrc.json` and place inside of it schema definitions for your project.
+
 ```json
 {
 	"schemas": [{
@@ -37,7 +41,8 @@ Create a file named `realmrc.json` and place inside of it schema definitions for
 
 ### Initialization
 
-Realm plugin files are exposed under `cordova.plugins.realm`. 
+Realm plugin files are exposed under `cordova.plugins.realm`.
+
 ```js
 	var realmPlugin = cordova.plugins.realm;
 	var Realm = realmPlugin.Realm;
@@ -51,7 +56,9 @@ Realm plugin files are exposed under `cordova.plugins.realm`.
 		});
 	});
 ```
+
 ### Queries
+
 Queries are created using the builder pattern.
 
 ```js
