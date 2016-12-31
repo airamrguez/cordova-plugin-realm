@@ -1,0 +1,35 @@
+{
+	"schemas": [{
+		"name": "Car",
+		"properties": {
+			"make": "string",
+			"model": "string"
+		}
+	}, {
+		"name": "Person",
+		"primaryKey": "id",
+		"properties": {
+			"id": "int",
+			"name": { "type": "string", "indexed": true },
+			"birthday": { "type": "date", "optional": true },
+			"cars": { "type": "list", "objectType": "Car" }
+		}
+	}, {
+		"name": "Artist",
+		"primaryKey": "name",
+		"properties": {
+			"name": "string",
+			"born": "date"
+		}
+	}, {
+		"name": "Album",
+		"primaryKey": "id",
+		"properties": {
+			"id": "int",
+			"name": { "type": "string", "indexed": true },
+			"genre": "string",
+			"released": "date",
+			"artist": "Artist"
+		}
+	}]
+}

@@ -1,28 +1,35 @@
-<%# Schema interfaces %><% schemas.forEach(function(schema) {%>
-class <%= schema.name %> extends RealmObject {
-<%
-    var properties = schema.properties;
-    Object.keys(properties).forEach(function(propName) {
-        var propValue = properties[propName];
-        if (schema.primaryKey === propName) {
-%>
-    @PrimaryKey
-<%
-        }
-        if (typeof propValue === 'string') {
-%>
-    private <%= javaType(propValue) %> <%= propName %>;
-<%
-        } else {
-%>
-    private <%= javaType(propValue.type) %> <%= propName %>;
-<%
-        }
-    });
-%>
-}
+package io.github.airamrguez.plugins.realm;
 
 <%
+packages.forEach(function(package) {
+-%>
+import <%- package %>;
+<%
 });
+-%>
+import io.realm.RealmObject;
+import io.realm.annotations.RealmClass;
+
+@RealmClass
+public class <%- schema.name %> extends RealmObject {
+    public <%- schema.name %>() {}
+<%
+var properties = schema.properties;
+Object.keys(properties).forEach(function(propName) {
+var propValue = properties[propName];
+var propType = javaType(propValue);
+var capitalizedPropName = capitalize(propName);
 %>
-<%# End of schema interfaces %>
+    <%- getTagForProperty(schema, propName, propValue) %>
+    private <%- propType %> <%- propName %>;
+
+    public void set<%- capitalizedPropName %>(<%- propType %> <%= propName %>) {
+      this.<%- propName %> = <%- propName %>;
+    }
+    public <%- propType %> get<%- capitalizedPropName %>() {
+      return <%- propName %>;
+    }
+<%
+});
+-%>
+}
