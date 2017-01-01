@@ -1,68 +1,86 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-realm" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-	<name>cordova-plugin-realm</name>
-	<description>Realm mobile database plugin for Cordova.</description>
-	<author>Airam Rguez</author>
-	<keywords>realm, database, nosql, mobile, ios, android</keywords>
-	<repo>https://github.com/airamrguez/cordova-plugin-realm</repo>
-	<info>
-		IMPORTANT: This plugin is still under development.
-		Use it on your own risk.
-	</info>
-	<js-module name="Types" src="www/Types.js" />
-	<js-module name="checkArgs" src="www/checkArgs.js" />
-	<js-module name="RealmResults" src="www/RealmResults.js" />
-	<js-module name="QueryBuilder" src="www/QueryBuilder.js" />
-	<js-module name="RealmNativeInstance" src="www/RealmNativeInstance.js" />
-	<js-module name="Realm" src="www/Realm.js">
-		<clobbers target="cordova.plugins.realm" />
-	</js-module>
+<plugin
+  xmlns="http://apache.org/cordova/ns/plugins/1.0"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  id="cordova-plugin-realm"
+  version="0.0.1">
+  <name>cordova-plugin-realm</name>
+  <description>Realm mobile database plugin for Cordova.</description>
+  <author>Airam Rguez</author>
+  <keywords>realm, database, nosql, mobile, ios, android</keywords>
+  <repo>https://github.com/airamrguez/cordova-plugin-realm</repo>
+  <info>
+    IMPORTANT: This plugin is still under development.
+    Use it on your own risk.
+  </info>
+  <js-module name="Types" src="www/Types.js" />
+  <js-module name="checkArgs" src="www/checkArgs.js" />
+  <js-module name="RealmResults" src="www/RealmResults.js" />
+  <js-module name="QueryBuilder" src="www/QueryBuilder.js" />
+  <js-module name="RealmNativeInstance" src="www/RealmNativeInstance.js" />
+  <js-module name="Realm" src="www/Realm.js">
+    <clobbers target="cordova.plugins.realm" />
+  </js-module>
 
-	<asset src="assets/hooks/createRealmObjects.js" target="hooks/realm/createRealmObjects.js" />
-	<asset src="assets/hooks/ejs.js" target="hooks/realm/ejs.js" />
-	<asset src="assets/hooks/utils.js" target="hooks/realm/utils.js" />
-	<asset src="assets/hooks/templates/Objc.tpl.ejs" target="hooks/realm/templates/Objc.tpl.ejs" />
-	<asset src="assets/hooks/templates/Java.tpl.ejs" target="hooks/realm/templates/Java.tpl.ejs" />
+  <platform name="android">
+    <framework src="src/android/realm.gradle" custom="true" type="gradleReference"/>
+    <source-file src="src/android/realm-android-library-2.2.1.aar" target-dir="libs" framework="true" />
+    <source-file src="src/android/realm-gradle-plugin-2.2.1.jar" target-dir="libs" />
+    <source-file src="src/android/realm-annotations-processor-2.2.1.jar" target-dir="libs" />
+    <source-file src="src/android/realm-annotations-2.2.1.jar" target-dir="libs" />
+    <source-file src="src/android/realm-transformer-2.2.1.jar" target-dir="libs" />
 
-	<config-file target="config.xml" parent="/*">
-		<hook type="before_build" src="hooks/createRealmObjects.js" />
-	</config-file>
+    <framework src="com.getkeepsafe.relinker:relinker:1.2.2" />
+    <framework src="com.facebook.stetho:stetho:1.4.1" />
+    <framework src="com.uphyca:stetho_realm:2.0.0" />
+    <framework src="com.google.code.gson:gson:2.3" />
 
-	<platform name="android">
-		<config-file parent="/*" target="res/xml/config.xml">
-			<feature name="cordova-plugin-realm">
-				<param name="android-package" value="io.github.airamrguez.plugins.realm.cordova-plugin-realm" />
-			</feature>
-		</config-file>
-		<config-file parent="/*" target="AndroidManifest.xml" />
-		<source-file src="src/android/cordova-plugin-realm.java" target-dir="src/io/github/airamrguez/plugins/realm/cordova-plugin-realm" />
-	</platform>
-	<platform name="ios">
-		<framework src="libc++.tbd" />
-		<framework src="src/ios/Realm.framework" custom="true" embed="true" />
-		<header-file src="src/ios/Models.h" />
+    <config-file parent="/*" target="res/xml/config.xml">
+      <feature name="RealmPlugin">
+        <param name="android-package" value="io.github.airamrguez.plugins.realm.RealmPlugin" />
+      </feature>
+    </config-file>
+    <source-file src="src/android/io/github/airamrguez/plugins/realm/RealmPlugin.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
+    <source-file src="src/android/io/github/airamrguez/plugins/realm/Schema.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
+  </platform>
+  <platform name="ios">
+    <!-- Eventually Cordova will support xcworkspace so this plugin will use cocoapods. -->
+    <!--<framework src="Realm" type="podspec" spec="~> 2.1.0" />-->
+    <framework src="libc++.tbd" />
+    <framework src="libz.tbd" />
+    <framework src="src/ios/Realm.framework" custom="true" />
+    <header-file src="src/ios/Models.h" />
 
-		<header-file src="src/ios/MCJSONDateTransformer.h" />
-		<header-file src="src/ios/MCJSONNonNullStringTransformer.h" />
-		<header-file src="src/ios/MCJSONPrimaryKeyTransformer.h" />
-		<header-file src="src/ios/MCJSONValueTransformer.h" />
-		<header-file src="src/ios/RLMObject+Copying.h" />
-		<header-file src="src/ios/RLMObject+JSON.h" />
-		<source-file src="src/ios/MCJSONDateTransformer.m" />
-		<source-file src="src/ios/MCJSONNonNullStringTransformer.m" />
-		<source-file src="src/ios/MCJSONPrimaryKeyTransformer.m" />
-		<source-file src="src/ios/MCJSONValueTransformer.m" />
-		<source-file src="src/ios/RLMObject+Copying.m" />
-		<source-file src="src/ios/RLMObject+JSON.m" />
+    <header-file src="src/ios/MCJSONDateTransformer.h" />
+    <header-file src="src/ios/MCJSONNonNullStringTransformer.h" />
+    <header-file src="src/ios/MCJSONPrimaryKeyTransformer.h" />
+    <header-file src="src/ios/MCJSONValueTransformer.h" />
+    <header-file src="src/ios/RLMObject+Copying.h" />
+    <header-file src="src/ios/RLMObject+JSON.h" />
 
-		<header-file src="src/ios/RealmPlugin.h" />
-		<source-file src="src/ios/RealmPlugin.m" />
-		
-		<config-file parent="/*" target="config.xml">
-			<feature name="RealmPlugin">
-				<param name="ios-package" value="RealmPlugin" />
-			</feature>
-		</config-file>
-	</platform>
-	<!--<hook type="after_platform_add" src="hooks/embedframework/addEmbedded.js" />-->
+    <header-file src="src/ios/DKPredicate.h" />
+    <header-file src="src/ios/DKPredicateBuilder.h" />
+
+    <source-file src="src/ios/MCJSONDateTransformer.m" />
+    <source-file src="src/ios/MCJSONNonNullStringTransformer.m" />
+    <source-file src="src/ios/MCJSONPrimaryKeyTransformer.m" />
+    <source-file src="src/ios/MCJSONValueTransformer.m" />
+    <source-file src="src/ios/RLMObject+Copying.m" />
+    <source-file src="src/ios/RLMObject+JSON.m" />
+
+    <source-file src="src/ios/DKPredicate.m" />
+    <source-file src="src/ios/DKPredicateBuilder.m" />
+
+    <header-file src="src/ios/RealmPlugin.h" />
+    <source-file src="src/ios/RealmPlugin.m" />
+
+    <config-file parent="/*" target="config.xml">
+      <feature name="RealmPlugin">
+        <param name="ios-package" value="RealmPlugin" />
+      </feature>
+    </config-file>
+  </platform>
+  <hook type="before_plugin_install" src="hooks/copyResources.js" />
+  <hook type="before_plugin_install" src="hooks/addProjectHook.js" />
+  <hook type="before_plugin_uninstall" src="hooks/removeResources.js" />
 </plugin>
