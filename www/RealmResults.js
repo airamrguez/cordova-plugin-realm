@@ -86,10 +86,10 @@ function RealmResults(realmResultsId, results) {
     };
   });
 
-  var changesChannel = 'results/' + realmResultsId;
-  this.changeSubscription = PubSub.subscribe(changesChannel, function(nextResults) {
-    onResultChange(this, nextResults);
-  });
+  // var changesChannel = 'results/' + realmResultsId;
+  // this.changeSubscription = PubSub.subscribe(changesChannel, function(nextResults) {
+  //   onResultChange(this, nextResults);
+  // });
 }
 
 /**
@@ -108,44 +108,50 @@ function onResultsSuccess(result, success) {
 var resultMethods = {
   sum: {
     signatures: [
-      [Types.string]
+      [Types.string, Types.func]
     ]
   },
   min: {
     signatures: [
-      [Types.string]
+      [Types.string, Types.func]
     ]
   },
   max: {
     signatures: [
-      [Types.string]
+      [Types.string, Types.func]
     ]
   },
   average: {
     signatures: [
-      [Types.string]
+      [Types.string, Types.func]
     ]
   },
-  size: {
+  sort: {
     signatures: [
-      []
+      [Types.string, Types.func],
+      [Types.string, Types.func, Types.bool],
+      [Types.string, Types.Sort, Types.func],
+      // Last bool param indicates update native realm results.
+      [Types.string, Types.Sort, Types.func, Types.bool]
     ]
   }
 };
 
 // TODO Check args only in development mode.
 Object.keys(resultMethods).forEach(function(method) {
-  RealmResults.prototype[method] = function(success, error) {
+  RealmResults.prototype[method] = function() {
     var args = Array.prototype.slice.call(arguments);
     var signatures = resultMethods[method].signatures;
     var validArgs = checkArgs(args, signatures);
+    var success = args[args.length - 1];
     if (validArgs) {
       exec(
-        onResultsSuccess(this, success),
-        error,
+        // onResultsSuccess(this, success), <- TODO: Delete this
+        success,
+        null,
         'RealmPlugin',
         method,
-        [this.realmResultsId, this.ops]
+        [this.realmResultsId].concat(args)
       );
     } else {
       throw new Error(

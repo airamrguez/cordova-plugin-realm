@@ -1,13 +1,13 @@
 var Case = {};
 (function(Case) {
-  Case[Case.SENSITIVE = 0] = 'SENSITIVE';
-  Case[Case.INSENSITIVE = 1] = 'INSENSITIVE';
+  Case[Case.INSENSITIVE = 0] = 'INSENSITIVE';
+  Case[Case.SENSITIVE = 1] = 'SENSITIVE';
 })(Case);
 
 var Sort = {};
 (function(Sort) {
-  Sort[Sort.ASCENDING = 0] = 'ASCENDING';
-  Sort[Sort.DESCENDING = 1] = 'DESCENDING';
+  Sort[Sort.DESCENDING = 0] = 'DESCENDING';
+  Sort[Sort.ASCENDING = 1] = 'ASCENDING';
 })(Sort);
 
 var types = {
@@ -19,6 +19,9 @@ var types = {
   },
   number: {
     typeOf: 'number'
+  },
+  func: {
+    typeOf: 'function'
   },
   Case: {
     typeOf: 'number',
@@ -34,7 +37,7 @@ var types = {
   },
   arrayOf: function(type) {
     return {
-      typeOf: type.typeOf,
+      typeOf: (type.instance && type.instance().name) || type.typeOf,
       array: true
     };
   },

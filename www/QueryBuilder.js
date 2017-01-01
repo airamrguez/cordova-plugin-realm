@@ -67,11 +67,6 @@ var queryMethods = {
       [Types.string, Types.string, Types.Case]
     ]
   },
-  count: {
-    signatures: [
-      []
-    ]
-  },
   endGroup: {
     signatures: [
       []
@@ -161,6 +156,16 @@ var queryMethods = {
     signatures: [
       []
     ]
+  },
+  limit: {
+    signatures: [
+      [Types.number]
+    ]
+  },
+  offset: {
+    signatures: [
+      [Types.number]
+    ]
   }
 };
 
@@ -179,55 +184,48 @@ Object.keys(queryMethods).forEach(function(method) {
  */
 function onExecuteSuccess(success) {
   return function(data) {
-    return success(new RealmResults(data.realmResultsId, data.results));
+    // Delete method does not return anything.
+    if (data) {
+      return success(new RealmResults(data.realmResultsId, data.results));
+    }
+    return success();
   };
 }
 
 // Append execution queries
 var executionQueries = {
-  distinct: {
-    signatures: [
-      [Types.string],
-      [Types.string, Types.varArgs(Types.string)]
-    ]
-  },
   findAll: {
     signatures: [
-      []
+      [Types.func]
     ]
   },
   findAllSorted: {
     signatures: [
-      [Types.string],
-      [Types.arrayOf(Types.string), Types.arrayOf(Types.Sort)],
-      [Types.arrayOf(Types.string), Types.Sort],
-      [
-        Types.arrayOf(Types.string),
-        Types.Sort,
-        Types.arrayOf(Types.string),
-        Types.Sort
-      ]
+      [Types.string, Types.func],
+      [Types.string, Types.Sort, Types.func],
+      [Types.arrayOf(Types.string), Types.arrayOf(Types.Sort), Types.func]
     ]
   },
-  findFirst: {
+  delete: {
     signatures: [
-      []
+      [Types.func]
     ]
   }
 };
 
 /* TODO Check args only in development mode. */
 Object.keys(executionQueries).forEach(function(method) {
-  QueryBuilder.prototype[method] = function(success, error) {
+  QueryBuilder.prototype[method] = function() {
     if (!this.valid) {
       // An exception should have been thrown.
       return;
     }
-    var args = Array.prototype.slice.call(arguments, 2);
+    var args = Array.prototype.slice.call(arguments);
     var signatures = executionQueries[method].signatures;
     var validArgs = checkArgs(args, signatures);
+    var success = args[args.length - 1];
     if (validArgs) {
-      exec(onExecuteSuccess(success), error, 'RealmPlugin', method, [
+      exec(onExecuteSuccess(success), null, 'RealmPlugin', method, [
         this.realmObjectID,
         this.schemaName,
         this.ops

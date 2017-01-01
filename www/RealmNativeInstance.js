@@ -10,13 +10,22 @@ function RealmNativeInstance(realmObjectID) {
 }
 
 RealmNativeInstance.prototype = {
-  write: function(schemaName, json, success, error) {
+  insert: function(schemaName, json, success, error) {
     exec(
       success,
       error,
       'RealmPlugin',
-      'write',
+      'insert',
       [this.realmObjectID, schemaName, json]
+    );
+  },
+  deleteAll: function(success, error) {
+    exec(
+      success,
+      error,
+      'RealmPlugin',
+      'deleteAll',
+      [this.realmObjectID]
     );
   },
   where: function(schemaName) {
