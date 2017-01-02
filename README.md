@@ -18,25 +18,35 @@ cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 
 ### Schema definitions
 
-Create a file named `realmrc.json` and place inside of it schema definitions for your project.
+Create a file named `realmrc.json` under your Cordova project **root** directory.
 
 ```json
 {
-	"schemas": [{
-		"name": "Person",
-		"properties": {
-			"name": { "type": "string", "indexed": true },
-			"birthday": { "type": "date", "optional": true },
-			"car": { "type": "Car" }
-		}
-	}, {
-		"name": "Car",
-		"properties": {
-			"make": "string",
-			"model": "string"
-		}
-	}]
+  "schemas": [{
+    "name": "Person",
+    "primaryKey": "id",
+    "properties": {
+      "id": "int",
+      "name": { "type": "string", "indexed": true },
+      "birthday": { "type": "date", "optional": true },
+      "car": { "type": "Car" }
+    }
+  }, {
+    "name": "Car",
+    "properties": {
+      "make": "string",
+      "model": "string"
+    }
+  }]
 }
+```
+
+This plugin uses realmrc.json file to generate native classes. Be sure you have added a platform
+to your project and build it every time you change your schema definition.
+
+```sh
+cordova platform add ios android
+cordova build
 ```
 
 ### Initialization
@@ -44,72 +54,117 @@ Create a file named `realmrc.json` and place inside of it schema definitions for
 Realm plugin files are exposed under `cordova.plugins.realm`.
 
 ```js
-	var realmPlugin = cordova.plugins.realm;
-	var Realm = realmPlugin.Realm;
+var realmPlugin = cordova.plugins.realm;
+var Realm = realmPlugin.Realm;
 
-	Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
-		realm.write('Person', json, function(success, error) {
-			if (error) {
-				alert('Error committing into the database.');
-				return;
-			}
-		});
-	});
+Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
+  realm.insert('Person', json, function(success, error) {
+    if (error) {
+      alert('Error committing into the database.');
+      return;
+    }
+  });
+});
 ```
 
 ### Queries
 
 Queries are created using the builder pattern.
 
+Get all rows from a collection:
+
 ```js
-	realm.where('Person')
-		.between('age', 18, 39)
-			.beginGroup()
-				.equalTo('name', 'Peter', Realm.Case.SENSITIVE)
-				.or()
-				.contains('name', 'Jo')
-			.endGroup()
-		.sort('age')
-		.findAll(function(results) {
-			results.forEach(function(result, i) {
-				console.log('Result ', i, result);
-			});
-		});
+realm.where('Person')
+  .findAll(function(results) {
+    if (results.length > 0) {
+      console.log('First result: ', results[0]);
+      results.map(function(result) {
+        // Do something with result...
+      });
+    }
+  });
+```
+
+Write complex queries and get the results sorted by a field.
+
+```js
+realm.where('Person')
+  .between('age', 18, 39)
+  .beginGroup()
+    .equalTo('name', 'Peter', Realm.Case.SENSITIVE)
+    .or()
+    .contains('name', 'Jo')
+  .endGroup()
+  .isNotEmpty('surnames')
+  .findAllSorted('age', function(results) {
+    results.forEach(function(result, i) {
+      console.log('Result ', i, result);
+    });
+  });
 ```
 
 ### Results
-Queries returns a `Result` object.
+
+Queries returns an array of results.
 
 ```js
-	realm.where('Person')
-		.findAll(function(results) {
-			results.onChange(function(nextResults) {
-				// Print all results
-				nextResults.forEach(r, i) {
-					console.log('Result ', i, r);
-				};
-			});
-			results[0] = {
-				id: 1,
-				name: 'Bob',
-				age: 26
-			};
-		}, function(error) {
-			console.log('[Error]: ', error);
-		});
+realm.where('Person')
+  .findAll(function(results) {
+    if (results.length > 0) {
+      console.log('First result: ', results[0]);
+      results.map(function(result) {
+        // Do something with result...
+      });
+    }
+  });
 ```
 
 ## API
 
-### `Realm`
-  - `init({ schema: RealmSchema })` creates a new Realm instance.
-  - `where(schemaName: string): QueryBuilder` allows to create queries.
+### Realm
 
-### `QueryBuilder`
+#### Realm class methods.
+
+  - `init({ schema: RealmSchema })`
+
+#### Realm instance methods.
+
+  - `where(schemaName: string): QueryBuilder` returns a query object which you can use to append query methods.
+  - `insert(schemaName, json, success, error)` inserts a json object or array into the database.
+  - `deleteAll(schemaName)` clears all objects.
+
+### Queries
+
+Queries methods are auto-explanatory. Each condition of the query is implicitly logical-and together.
+
+  - `between(fieldName, from, to)`
+  - `greaterThan(fieldName, value)`
+  - `lessThan(fieldName, value)`
+  - `greaterThanOrEqualTo(fieldName, value)`
+  - `lessThanOrEqualTo(fieldName, value)`
+  - `equalTo(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `notEqualTo(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `contains(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `beginsWith(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `endsWith(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `isNull(fieldName)`
+  - `isNotNull(fieldName)`
+  - `isEmpty(fieldName)`
+  - `isNotEmpty(fieldName)`
+
+Join or negate conditions.
+
+  - `or()`
+  - `not()`
+
+Add left parenthesis or right parenthesis with:
+
   - `beginGroup()`
-  - `beginsWith()`
+  - `endGroup()`
 
-### `Results`
-  - `every`
-  - `find`
-  - `findIndex`
+End up your query with one of the following methods:
+  - `findAll(success)`
+  - `findAllSorted(fieldName, success)`
+  - `findAllSorted(fieldName, sorting = cordova.plugins.realm.Sort.ASCENDING, success)`
+  - `findAllSorted(fieldName: Array<string>, sorting: Array<cordova.plugins.realm.Sort.ASCENDING>, success)`
+  - `delete(success)`
