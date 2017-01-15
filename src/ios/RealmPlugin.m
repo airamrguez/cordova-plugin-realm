@@ -32,6 +32,8 @@
 - (NSArray*)addImplicitAndOperators:(NSArray*)operations;
 - (NSArray*)extractFrom:(NSArray*)operations limit:(NSNumber**)limit andOffset:(NSNumber**)offset;
 - (NSArray*)sliceResults:(RLMResults*)results from:(NSNumber*)offset to:(NSNumber*)limit;
+- (NSArray*)schemaToJSON:(RLMRealm*)realm;
+- (NSString*)schemaPropertyType:(RLMRealm *)realm schema:(NSString*)schemaName field:(NSString*)fieldName;
 - (void)aggregate:(CDVInvokedUrlCommand*)command operation:(ResultOperationType)opType;
 - (BOOL)isPropertyNSDate: (Class)objectClass withPath:(NSArray*) propertyPath;
 - (BOOL)isPropertyRLMArray: (Class)objectClass withPath:(NSArray*) propertyPath;
@@ -83,8 +85,13 @@
     }
     [[self realms] addObject: realm];
     
+    NSDictionary *resultArgs = [NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSNumber numberWithInteger:realmID], @"realmInstanceID",
+                                [self schemaToJSON:realm], @"schemas",
+                                nil];
+
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                             messageAsNSInteger:realmID];
+                                             messageAsDictionary:resultArgs];
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
 
@@ -608,6 +615,95 @@
         }
     }
     return NO;
+}
+
+- (NSArray*)schemaToJSON:(RLMRealm*)realm {
+    NSMutableArray *schemas = [[NSMutableArray alloc] init];
+    RLMSchema *schema = [realm schema];
+    NSArray *objectSchemas = [schema objectSchema];
+    for (RLMObjectSchema *objectSchema in objectSchemas) {
+        NSMutableDictionary *model = [[NSMutableDictionary alloc] init];
+        [model setObject:[objectSchema className] forKey:@"name"];
+        RLMProperty *pkProperty = [objectSchema primaryKeyProperty];
+        if (pkProperty != nil) {
+            [model setObject:[pkProperty name] forKey:@"primaryKey"];
+        }
+        NSArray *properties = [objectSchema properties];
+        NSMutableDictionary *modelProperties = [[NSMutableDictionary alloc] init];
+        for (RLMProperty *property in properties) {
+            NSString *type;
+            NSString *objectType = nil;
+            switch ([property type]) {
+                case RLMPropertyTypeBool:
+                    type = @"boolean";
+                    break;
+                case RLMPropertyTypeString:
+                    type = @"string";
+                    break;
+                case RLMPropertyTypeDate:
+                    type = @"date";
+                    break;
+                case RLMPropertyTypeDouble:
+                    type = @"double";
+                    break;
+                case RLMPropertyTypeFloat:
+                    type = @"float";
+                    break;
+                case RLMPropertyTypeInt:
+                    type = @"int";
+                    break;
+                case RLMPropertyTypeData:
+                    type = @"data";
+                    break;
+                case RLMPropertyTypeObject:
+                    type = @"object";
+                    objectType = [self schemaPropertyType:realm schema:[objectSchema className] field:[property name]];
+                    break;
+                case RLMPropertyTypeArray:
+                    type = @"list";
+                    objectType = [self schemaPropertyType:realm schema:[objectSchema className] field:[property name]];
+                default:
+                    break;
+            }
+            NSDictionary *jsonProperty = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          type, @"type",
+                                          objectType, @"objectType",
+                                          @([property indexed]), @"indexed",
+                                          @([property optional]), @"optional",
+                                          nil];
+            [modelProperties setObject:jsonProperty forKey:[property name]];
+        }
+        [model setObject:modelProperties forKey:@"properties"];
+        [schemas addObject:model];
+    }
+    return schemas;
+}
+
+- (NSString*)schemaPropertyType:(RLMRealm *)realm schema:(NSString*)schemaName field:(NSString*)fieldName {
+    Class objectClass = NSClassFromString(schemaName);
+    unsigned int pcount;
+    objc_property_t *properties = class_copyPropertyList(objectClass, &pcount);
+    for (int i = 0; i < pcount; i++) {
+        objc_property_t prop = properties[i];
+        NSString* name = [[NSString alloc] initWithCString:property_getName(prop)
+                                                  encoding:NSUTF8StringEncoding];
+        if ([name isEqual: fieldName]) {
+            NSString* originalType = [[NSString alloc] initWithCString:property_getAttributes(prop)
+                                                              encoding:NSUTF8StringEncoding];
+            if ([originalType hasPrefix:@"T@\"RLMArray"]) {
+                NSUInteger startRange = [originalType rangeOfString:@"<"].location;
+                NSUInteger endRange = [originalType rangeOfString:@">"].location;
+                return [originalType substringWithRange:
+                                       NSMakeRange(startRange + 1, endRange - startRange - 1)];
+            } else if ([originalType hasPrefix:@"T@"]) {
+                NSUInteger endRange = [originalType rangeOfString:@"\","].location;
+                return [originalType substringWithRange:
+                        NSMakeRange(3, endRange - 3)];
+            }
+            return originalType;
+        }
+    }
+    return nil;
 }
 
 @end

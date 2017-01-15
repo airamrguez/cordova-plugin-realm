@@ -9,8 +9,8 @@ var Types = require('./Types');
  * @return {[type]}         [description]
  */
 function onInitSuccess(success) {
-  return function(realmObjectID) {
-    success(new RealmNativeInstance(realmObjectID));
+  return function(realm) {
+    success(new RealmNativeInstance(realm));
   };
 }
 

@@ -5,13 +5,13 @@ var checkArgs = require('./checkArgs');
 
 /**
  * QueryBuilder constructor
- * @param {number} realmObjectID an identifier to keep track of the native
+ * @param {object} realm an object to keep track of the native
  * instance
  * @param {string} schemaName is the name of the schema that should have been
  * defined inside the realmrc.json file.
  */
-function QueryBuilder(realmObjectID, schemaName) {
-  this.realmObjectID = realmObjectID;
+function QueryBuilder(realm, schemaName) {
+  this.realm = realm;
   this.schemaName = schemaName;
   this.ops = [];
   this.valid = true;
@@ -182,11 +182,11 @@ Object.keys(queryMethods).forEach(function(method) {
  * @param  {function} success function.
  * @return {RealmResults} wrapping the results that comes from the native call.
  */
-function onExecuteSuccess(success) {
+function onExecuteSuccess(realm, success) {
   return function(data) {
     // Delete method does not return anything.
     if (data) {
-      return success(new RealmResults(data.realmResultsId, data.results));
+      return success(new RealmResults(realm, data.realmResultsId, data.results));
     }
     return success();
   };
@@ -225,8 +225,9 @@ Object.keys(executionQueries).forEach(function(method) {
     var validArgs = checkArgs(args, signatures);
     var success = args[args.length - 1];
     if (validArgs) {
-      exec(onExecuteSuccess(success), null, 'RealmPlugin', method, [
-        this.realmObjectID,
+      var realmInstanceID = this.realm.realmInstanceID;
+      exec(onExecuteSuccess(this.realm, success), null, 'RealmPlugin', method, [
+        realmInstanceID,
         this.schemaName,
         this.ops
       ]);

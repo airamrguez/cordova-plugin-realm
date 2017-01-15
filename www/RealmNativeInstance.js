@@ -3,33 +3,36 @@ var QueryBuilder = require('./QueryBuilder');
 
 /**
  * RealmNativeInstance keeps track of a native Realm instance.
- * @param {number} realmObjectID identifier of the native Realm instance.
+ * @param {object} realm contains information about the native
+ * realm instance.
  */
-function RealmNativeInstance(realmObjectID) {
-  this.realmObjectID = realmObjectID;
+function RealmNativeInstance(realm) {
+  this.realm = realm;
 }
 
 RealmNativeInstance.prototype = {
   insert: function(schemaName, json, success, error) {
+    var realmInstanceID = this.realm.realmInstanceID;
     exec(
       success,
       error,
       'RealmPlugin',
       'insert',
-      [this.realmObjectID, schemaName, json]
+      [realmInstanceID, schemaName, json]
     );
   },
   deleteAll: function(success, error) {
+    var realmInstanceID = this.realm.realmInstanceID;
     exec(
       success,
       error,
       'RealmPlugin',
       'deleteAll',
-      [this.realmObjectID]
+      [realmInstanceID]
     );
   },
   where: function(schemaName) {
-    return new QueryBuilder(this.realmObjectID, schemaName);
+    return new QueryBuilder(this.realm, schemaName);
   }
 };
 

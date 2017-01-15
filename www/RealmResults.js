@@ -61,7 +61,10 @@ function onResultChange(result, nextResults) {
  * @param {int} realmResultsId identifies a RealmResult native instance.
  * @param {Array<Object>} results objects to be added to the RealmResults object.
  */
-function RealmResults(realmResultsId, results) {
+function RealmResults(realm, realmResultsId, results) {
+  Object.defineProperty(this, 'realm', {
+    value: realm
+  });
   Object.defineProperty(this, 'realmResultsId', {
     value: realmResultsId
   });
