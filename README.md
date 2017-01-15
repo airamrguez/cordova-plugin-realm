@@ -8,7 +8,7 @@ This is a Work In Progress. **DO NOT USE IT**. The API will change.
 
 This plugin provides an interface to Realm mobile database, particularly iOS and Android.
 
-## Instalation
+## Installation
 
 ```sh
 cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
