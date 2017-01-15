@@ -1,6 +1,6 @@
 # @airamrguez/cordova-plugin-realm
 
-__IMPORTANT__: This is not an official Realm plugin.
+__IMPORTANT__: This is not an official Realm product.
 
 This is a Work In Progress. **DO NOT USE IT**. The API will change.
 
