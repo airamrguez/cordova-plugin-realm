@@ -14,6 +14,10 @@ This plugin provides an interface to Realm mobile database, particularly iOS and
 cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ```
 
+## Workflow
+
+![cordova-plugin-realm workflow](https://cloud.githubusercontent.com/assets/1159448/21962439/4b524196-db26-11e6-9735-f2efdbba28d8.png)
+
 ## Usage
 
 ### Schema definitions
