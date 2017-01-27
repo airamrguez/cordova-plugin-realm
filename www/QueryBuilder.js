@@ -182,11 +182,11 @@ Object.keys(queryMethods).forEach(function(method) {
  * @param  {function} success function.
  * @return {RealmResults} wrapping the results that comes from the native call.
  */
-function onExecuteSuccess(realm, success) {
+function onExecuteSuccess(realm, schemaName, success) {
   return function(data) {
     // Delete method does not return anything.
     if (data) {
-      return success(new RealmResults(realm, data.realmResultsId, data.results));
+      return success(new RealmResults(realm, schemaName, data.realmResultsId, data.results));
     }
     return success();
   };
@@ -226,7 +226,7 @@ Object.keys(executionQueries).forEach(function(method) {
     var success = args[args.length - 1];
     if (validArgs) {
       var realmInstanceID = this.realm.realmInstanceID;
-      exec(onExecuteSuccess(this.realm, success), null, 'RealmPlugin', method, [
+      exec(onExecuteSuccess(this.realm, this.schemaName, success), null, 'RealmPlugin', method, [
         realmInstanceID,
         this.schemaName,
         this.ops

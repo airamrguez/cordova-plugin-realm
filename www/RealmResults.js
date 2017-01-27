@@ -42,6 +42,49 @@ function setProps(result, nextResults) {
   Object.defineProperties(result, props);
 }
 
+function findSchema(schemas, schemaName) {
+  return schemas.find(function(schema) {
+    return schema.name === schemaName;
+  });
+}
+
+function getPropertiesOfType(schema, type) {
+  var properties = schema.properties;
+  return Object.keys(properties).filter(function(key) {
+    return properties[key].type === type;
+  });
+}
+
+function getInnerSchemas(schema, schemas, objectProperties) {
+  return objectProperties.map(function(prop) {
+    return findSchema(schemas, schema.properties[prop].objectType);
+  });
+}
+
+function normalize(results, schemas, schema) {
+  var dateProperties = getPropertiesOfType(schema, 'date');
+  dateProperties.forEach(function(prop) {
+    results.forEach(function(result) {
+      result[prop] = new Date(result[prop]);
+    });
+  });
+  var objectProperties = getPropertiesOfType(schema, 'object');
+  var objectInnerSchemas = getInnerSchemas(schema, schemas, objectProperties);
+  objectInnerSchemas.forEach(function(innerSchema, i) {
+    results.forEach(function(result) {
+      normalize([result[objectProperties[i]]], schemas, innerSchema);
+    });
+  });
+  var listProperties = getPropertiesOfType(schema, 'list');
+  var listInnerSchemas = getInnerSchemas(schema, schemas, listProperties);
+  listInnerSchemas.forEach(function(innerSchema, i) {
+    results.forEach(function(result) {
+      normalize(result[objectProperties[i]], schemas, innerSchema);
+    });
+  });
+  return results;
+}
+
 /**
  * onResultChange recompose results into the result instance every time that
  * there is an update on the native result instance.
@@ -61,15 +104,23 @@ function onResultChange(result, nextResults) {
  * @param {int} realmResultsId identifies a RealmResult native instance.
  * @param {Array<Object>} results objects to be added to the RealmResults object.
  */
-function RealmResults(realm, realmResultsId, results) {
+function RealmResults(realm, schemaName, realmResultsId, results) {
   Object.defineProperty(this, 'realm', {
     value: realm
   });
   Object.defineProperty(this, 'realmResultsId', {
     value: realmResultsId
   });
+  Object.defineProperty(this, 'schemaName', {
+    value: schemaName
+  });
 
-  setProps(this, results);
+  var schemas = realm.schemas;
+  var schema = findSchema(schemas, schemaName);
+  if (!schema) {
+    throw new Error(schemaName + ' schema not found');
+  }
+  setProps(this, normalize(results, schemas, schema));
 
   [
     'every',
