@@ -276,8 +276,7 @@ static NSInteger const kCreateBatchSize = 100;
 
 	NSMutableDictionary *result = [NSMutableDictionary dictionary];
     for (RLMProperty *property in schema.properties) {
-        result[[property.name camelToSnakeCase]] = property.name;
-
+        result[property.name] = property.name;
     }
 
 	return [result copy];
@@ -288,8 +287,7 @@ static NSInteger const kCreateBatchSize = 100;
 
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     for (RLMProperty *property in schema.properties) {
-        result[property.name] = [property.name camelToSnakeCase];
-
+        result[property.name] = property.name;
     }
 
 	return [result copy];
