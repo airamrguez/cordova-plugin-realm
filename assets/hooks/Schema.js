@@ -46,18 +46,15 @@ Schema.prototype.sortSchemas = function(dependencyGraph) {
     var bName = modelB.name;
     var aDependencies = dependencyGraph.adjacentsForNode(aName);
     var i;
-    var dependency;
     for (i = 0; i < aDependencies.length; i++) {
-      dependency = aDependencies[i];
-      if (bName === dependency.id) {
-        return -1;
+      if (bName === aDependencies[i]) {
+        return 1;
       }
     }
     var bDependencies = dependencyGraph.adjacentsForNode(bName);
     for (i = 0; i < bDependencies.length; i++) {
-      dependency = bDependencies[i];
-      if (aName === dependency.id) {
-        return 1;
+      if (aName === bDependencies[i]) {
+        return -1;
       }
     }
     return 0;

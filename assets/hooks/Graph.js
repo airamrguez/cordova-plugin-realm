@@ -30,10 +30,7 @@ Graph.prototype.adjacentsForNode = function(nodeId) {
   var nodes = [];
   this.edges.forEach(function(edge) {
     if (edge.head.id === nodeId) {
-      nodes.push(edge.head);
-    }
-    if (edge.tail.id === nodeId) {
-      nodes.push(edge.tail);
+      nodes.push(edge.tail.id);
     }
   });
   return nodes;
