@@ -142,13 +142,23 @@ function getTagForProperty(schema, propName, propValue) {
   return '';
 }
 
-function renderModelClass(template, schema, schemas) {
+// FIXME Deeper deps.
+function getSchemaDependencies(schemaName, dependencies) {
+  return dependencies.adjacentsForNode(schemaName).map(function(node) {
+    return node.id;
+  });
+}
+
+function renderModelClass(template, schema, schemas, dependencies) {
   return template({
     packages: getRealmPackages(schema),
     schema: schema,
     getTagForProperty: getTagForProperty,
     javaType: function(propValue) {
       return javaType(propValue, schemas);
+    },
+    getSchemaDependencies: function(schema) {
+      return getSchemaDependencies(schema, dependencies);
     },
     capitalize: utils.capitalize
   });
@@ -182,14 +192,16 @@ function writeClassFile(paths, clazz, schema) {
   });
 }
 
-function JavaBuilder(project, schemas) {
+function JavaBuilder(project, schemas, dependencyGraph) {
   this.project = project;
   this.schemas = schemas;
+  this.dependencyGraph = dependencyGraph;
 }
 
 JavaBuilder.prototype.generateSourceFiles = function() {
   var project = this.project;
   var schemas = this.schemas;
+  var dependencies = this.dependencyGraph;
   var androidPackageDir = path.resolve(
     project.projectRoot, 'platforms', 'android', 'src', ANDROID_SRC_PATH
   );
@@ -200,7 +212,7 @@ JavaBuilder.prototype.generateSourceFiles = function() {
   var serializerTpl = utils.getTemplate('JavaSerializer');
 
   schemas.forEach(function(schema) {
-    var modelClass = renderModelClass(modelTpl, schema, schemas);
+    var modelClass = renderModelClass(modelTpl, schema, schemas, dependencies);
     var serializerClass = renderSerializerClass(serializerTpl, schema, schemas);
     var modelClassFileName = schema.name + '.java';
     var serializerClassFileName = schema.name + 'Serializer.java';

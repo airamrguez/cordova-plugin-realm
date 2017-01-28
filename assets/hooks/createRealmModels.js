@@ -43,7 +43,7 @@ module.exports = function(context) {
           builder = new ObjcBuilder(project, sortedSchemas);
           break;
         case 'android':
-          builder = new JavaBuilder(project, sortedSchemas);
+          builder = new JavaBuilder(project, sortedSchemas, dependencyGraph);
           break;
         default:
           console.warn('Platform ', platform, ' is not supported.');
