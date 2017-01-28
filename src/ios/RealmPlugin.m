@@ -27,6 +27,7 @@
 #import "RLMObject+JSON.h"
 
 @interface RealmPlugin()
+- (RLMRealmConfiguration*)getConfig:(NSDictionary *)options;
 - (NSCompoundPredicate*)buildPredicate:(NSArray*)operations for:(Class)objectClass;
 - (NSCompoundPredicate*)createPredicate:(NSDictionary*)op for:(Class)objectClass;
 - (NSArray*)addImplicitAndOperators:(NSArray*)operations;
@@ -53,8 +54,6 @@
     [[NSFileManager defaultManager]
      removeItemAtURL:[RLMRealmConfiguration defaultConfiguration].fileURL error:nil];
 
-    NSArray* rawSchema = [options objectForKey: @"schema"];
-
     if ([self realms] == nil) {
         [self setRealms: [[NSMutableArray alloc] init]];
     }
@@ -63,26 +62,16 @@
     }
 
     NSInteger realmID = [[self realms] count];
-    RLMRealm *realm;
-    if ([rawSchema count] > 0) {
-        NSMutableArray *objectClasses = [[NSMutableArray alloc] init];
-        for (NSString *className in rawSchema) {
-            Class objectClass = NSClassFromString(className);
-            [objectClasses addObject: objectClass];
-        }
-        RLMRealmConfiguration *config = [RLMRealmConfiguration defaultConfiguration];
-        [config setObjectClasses:[objectClasses copy]];
-        NSError *error;
-        realm = [RLMRealm realmWithConfiguration:config error:&error];
-        if (error != nil) {
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                                   messageToErrorObject:1];
-            [self.commandDelegate sendPluginResult:result callbackId:callbackId];
-            return;
-        }
-    } else {
-      realm = [RLMRealm defaultRealm];
+    RLMRealmConfiguration* config = [self getConfig:options];
+    NSError *error;
+    RLMRealm *realm = [RLMRealm realmWithConfiguration:config error:&error];
+    if (error != nil) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                               messageToErrorObject:1];
+        [self.commandDelegate sendPluginResult:result callbackId:callbackId];
+        return;
     }
+
     [[self realms] addObject: realm];
     
     NSDictionary *resultArgs = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -414,8 +403,12 @@
     BOOL oneToOneRelation = [self isRelationOneToOne: objectClass withPath:keypathComponents];
     NSString* aggregateOp = isKeypath && !oneToOneRelation ? @"ANY" : @"";
 
-    if ([opName isEqualToString: @"between"]) {
-        [predicate where:arg0 between:[args objectAtIndex:1] andThis:[args objectAtIndex:2]];
+    if ([opName isEqualToString:@"beginsWith"]) {
+        BOOL casing = [args count] > 2 ? [args[2] boolValue] : NO;
+        [predicate where:arg0 startsWith:[args objectAtIndex:1]
+           caseSensitive: casing operator:aggregateOp];
+    } else if ([opName isEqualToString: @"between"]) {
+        [predicate where:arg0 between:[args objectAtIndex:1] andThis:[args objectAtIndex:2] operator:aggregateOp];
     } else if ([opName isEqualToString:@"contains"]) {
         BOOL casing = [args count] > 2 ? [args[2] boolValue] : NO;
         [predicate where:arg0 contains:[args objectAtIndex:1]
@@ -435,7 +428,7 @@
                                                MCJSONDateTimeTransformerName];
             arg1 = [transformer transformedValue: arg1];
         }
-        [predicate where:arg0 greaterThan:arg1];
+        [predicate where:arg0 greaterThan:arg1 operator:aggregateOp];
     }  else if ([opName isEqualToString: @"greaterThanOrEqualTo"]) {
         id arg1 = [args objectAtIndex:1];
         if ([self isPropertyNSDate:objectClass withPath:keypathComponents]) {
@@ -443,7 +436,7 @@
                                                MCJSONDateTimeTransformerName];
             arg1 = [transformer transformedValue: arg1];
         }
-        [predicate where:arg0 greaterThanOrEqualTo:arg1];
+        [predicate where:arg0 greaterThanOrEqualTo:arg1 operator:aggregateOp];
     } else if ([opName isEqualToString:@"in"]) {
         NSArray* inArg;
         NSArray* inArgRawValues = [args objectAtIndex: 1];
@@ -485,7 +478,7 @@
                                                MCJSONDateTimeTransformerName];
             arg1 = [transformer transformedValue: arg1];
         }
-        [predicate where:arg0 lessThan:arg1];
+        [predicate where:arg0 lessThan:arg1 operator:aggregateOp];
     } else if ([opName isEqualToString:@"lessThanOrEqualTo"]) {
         id arg1 = [args objectAtIndex:1];
         if ([self isPropertyNSDate:objectClass withPath:keypathComponents]) {
@@ -493,7 +486,7 @@
                                                MCJSONDateTimeTransformerName];
             arg1 = [transformer transformedValue: arg1];
         }
-        [predicate where:arg0 lessThanOrEqualTo:arg1];
+        [predicate where:arg0 lessThanOrEqualTo:arg1 operator:aggregateOp];
     } else if ([opName isEqualToString:@"notEqualTo"]) {
         BOOL casing = [args count] > 2 ? [args[2] boolValue] : NO;
         [predicate where:arg0 doesntEqual:@"" caseSensitive:casing operator:aggregateOp];
@@ -549,6 +542,32 @@
 }
 
 #pragma end
+
+- (RLMRealmConfiguration*)getConfig:(NSDictionary *)options {
+    RLMRealmConfiguration *config = [RLMRealmConfiguration defaultConfiguration];
+    
+    if (options == nil) {
+        return config;
+    }
+    
+    BOOL deleteRealmIfMigrationNeeded = [[options objectForKey:@"deleteRealmIfMigrationNeeded"] boolValue];
+    config.deleteRealmIfMigrationNeeded = deleteRealmIfMigrationNeeded;
+    
+    NSArray* rawSchemas = [options objectForKey: @"schemas"];
+    if ([rawSchemas count] > 0) {
+        NSMutableArray *objectClasses = [[NSMutableArray alloc] init];
+        for (NSString *className in rawSchemas) {
+            Class objectClass = NSClassFromString(className);
+            [objectClasses addObject: objectClass];
+        }
+        
+        [config setObjectClasses:[objectClasses copy]];
+    }
+    
+    config.schemaVersion = [([options objectForKey:@"schemaVersion"] ?: 0) unsignedIntValue];
+    
+    return config;
+}
 
 - (BOOL)isPropertyNSDate: (Class)objectClass withPath:(NSArray*) propertyPath {
     if ([propertyPath count] <= 0) {

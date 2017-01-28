@@ -257,9 +257,9 @@
     return [self where:key like:value caseSensitive:NO operator:@""];
 }
 
-- (id)where:(NSString *)key greaterThan:(id)value {
-    
-    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:@"%K > %@", key, value]
+- (id)where:(NSString *)key greaterThan:(id)value operator:(NSString*)aggregate {
+    NSString* pred = [[NSString alloc] initWithFormat:@"%@ %%K > %%@", aggregate];
+    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:pred, key, value]
                                 predicateType:DKPredicateTypeGreaterThan
                                          info:[NSDictionary dictionaryWithObjectsAndKeys:
                                                key, @"column",
@@ -269,9 +269,9 @@
     return self;
 }
 
-- (id)where:(NSString *)key greaterThanOrEqualTo:(id)value {
-    
-    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:@"%K >= %@", key, value]
+- (id)where:(NSString *)key greaterThanOrEqualTo:(id)value operator:(NSString*)aggregate {
+    NSString* pred = [[NSString alloc] initWithFormat:@"%@ %%K >= %%@", aggregate];
+    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:pred, key, value]
                                 predicateType:DKPredicateTypeGreaterThanOrEqualTo
                                          info:[NSDictionary dictionaryWithObjectsAndKeys:
                                                key, @"column",
@@ -282,9 +282,9 @@
     
 }
 
-- (id)where:(NSString *)key lessThan:(id)value {
-    
-    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:@"%K < %@", key, value]
+- (id)where:(NSString *)key lessThan:(id)value operator:(NSString*)aggregate {
+    NSString* pred = [[NSString alloc] initWithFormat:@"%@ %%K < %%@", aggregate];
+    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:pred, key, value]
                                 predicateType:DKPredicateTypeLessThan
                                          info:[NSDictionary dictionaryWithObjectsAndKeys:
                                                key, @"column",
@@ -295,9 +295,9 @@
     
 }
 
-- (id)where:(NSString *)key lessThanOrEqualTo:(id)value {
-    
-    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:@"%K <= %@", key, value]
+- (id)where:(NSString *)key lessThanOrEqualTo:(id)value operator:(NSString*)aggregate {
+    NSString* pred = [[NSString alloc] initWithFormat:@"%@ %%K <= %%@", aggregate];
+    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:pred, key, value]
                                 predicateType:DKPredicateTypeLessThanOrEqualTo
                                          info:[NSDictionary dictionaryWithObjectsAndKeys:
                                                key, @"column",
@@ -308,9 +308,9 @@
     
 }
 
-- (id)where:(NSString *)key between:(id)first andThis:(id)second {
-    
-    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:@"(%K >= %@) AND (%K < %@)", key, first, key, second]
+- (id)where:(NSString *)key between:(id)first andThis:(id)second operator:(NSString*)aggregate {
+    NSString* pred = [[NSString alloc] initWithFormat:@"(%@ %%K >= %%@) AND (%@ %%K < %%@)", aggregate, aggregate];
+    [self where:[DKPredicate withPredicate:[NSPredicate predicateWithFormat:pred, key, first, key, second]
                                 predicateType:DKPredicateTypeBetween
                                          info:[NSDictionary dictionaryWithObjectsAndKeys:
                                                key, @"column",

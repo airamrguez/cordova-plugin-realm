@@ -54,11 +54,11 @@ typedef void (^DKQueryFinishBlock)(NSArray * records, NSError * error);
 - (id)where:(NSString *)key like:(NSString *)value;
 - (id)where:(NSString *)key like:(NSString *)value caseSensitive:(BOOL)casing operator:(NSString*)aggregate;
 
-- (id)where:(NSString *)key greaterThan:(id)value;
-- (id)where:(NSString *)key greaterThanOrEqualTo:(id)value;
-- (id)where:(NSString *)key lessThan:(id)value;
-- (id)where:(NSString *)key lessThanOrEqualTo:(id)value;
-- (id)where:(NSString *)key between:(id)first andThis:(id)second;
+- (id)where:(NSString *)key greaterThan:(id)value operator:(NSString*)aggregate;
+- (id)where:(NSString *)key greaterThanOrEqualTo:(id)value operator:(NSString*)aggregate;
+- (id)where:(NSString *)key lessThan:(id)value operator:(NSString*)aggregate;
+- (id)where:(NSString *)key lessThanOrEqualTo:(id)value operator:(NSString*)aggregate;
+- (id)where:(NSString *)key between:(id)first andThis:(id)second operator:(NSString*)aggregate;
 
 - (id)isEmptyArray:(NSString *)key;
 - (id)isNotEmptyArray:(NSString *)key;
