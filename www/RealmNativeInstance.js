@@ -6,13 +6,13 @@ var QueryBuilder = require('./QueryBuilder');
  * @param {object} realm contains information about the native
  * realm instance.
  */
-function RealmNativeInstance(realm) {
-  this.realm = realm;
+function RealmNativeInstance(config) {
+  this.config = config;
 }
 
 RealmNativeInstance.prototype = {
   insert: function(schemaName, json, success, error) {
-    var realmInstanceID = this.realm.realmInstanceID;
+    var realmInstanceID = this.config.realmInstanceID;
     exec(
       success,
       error,
@@ -22,7 +22,7 @@ RealmNativeInstance.prototype = {
     );
   },
   deleteAll: function(success, error) {
-    var realmInstanceID = this.realm.realmInstanceID;
+    var realmInstanceID = this.config.realmInstanceID;
     exec(
       success,
       error,
@@ -32,7 +32,7 @@ RealmNativeInstance.prototype = {
     );
   },
   where: function(schemaName) {
-    return new QueryBuilder(this.realm, schemaName);
+    return new QueryBuilder(this.config, schemaName);
   }
 };
 

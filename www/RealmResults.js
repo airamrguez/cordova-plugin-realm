@@ -79,7 +79,7 @@ function normalize(results, schemas, schema) {
   var listInnerSchemas = getInnerSchemas(schema, schemas, listProperties);
   listInnerSchemas.forEach(function(innerSchema, i) {
     results.forEach(function(result) {
-      normalize(result[objectProperties[i]], schemas, innerSchema);
+      normalize(result[listProperties[i]], schemas, innerSchema);
     });
   });
   return results;
@@ -104,18 +104,16 @@ function onResultChange(result, nextResults) {
  * @param {int} realmResultsId identifies a RealmResult native instance.
  * @param {Array<Object>} results objects to be added to the RealmResults object.
  */
-function RealmResults(realm, schemaName, realmResultsId, results) {
-  Object.defineProperty(this, 'realm', {
-    value: realm
+function RealmResults(queryBuilder, realmResultsId, results) {
+  Object.defineProperty(this, 'queryBuilder', {
+    value: queryBuilder
   });
   Object.defineProperty(this, 'realmResultsId', {
     value: realmResultsId
   });
-  Object.defineProperty(this, 'schemaName', {
-    value: schemaName
-  });
 
-  var schemas = realm.schemas;
+  var schemas = queryBuilder.config.schemas;
+  var schemaName = queryBuilder.schemaName;
   var schema = findSchema(schemas, schemaName);
   if (!schema) {
     throw new Error(schemaName + ' schema not found');
