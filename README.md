@@ -87,7 +87,7 @@ var realmPlugin = cordova.plugins.realm;
 var Realm = realmPlugin.Realm;
 
 Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
-  realm.insert('Person', json, function(success, error) {
+  realm.create('Person', json, true, function(success, error) {
     if (error) {
       alert('Error committing into the database.');
       return;
