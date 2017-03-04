@@ -1,6 +1,10 @@
 var exec = require('cordova/exec');
 var checkArgs = require('./checkArgs');
 var Types = require('./Types');
+var utils = require('./utils');
+
+var findSchema = utils.findSchema;
+var normalizeSchema = utils.normalizeSchema;
 
 /**
  * setProps makes a result instance behaves like an array.
@@ -42,49 +46,6 @@ function setProps(result, nextResults) {
   Object.defineProperties(result, props);
 }
 
-function findSchema(schemas, schemaName) {
-  return schemas.find(function(schema) {
-    return schema.name === schemaName;
-  });
-}
-
-function getPropertiesOfType(schema, type) {
-  var properties = schema.properties;
-  return Object.keys(properties).filter(function(key) {
-    return properties[key].type === type;
-  });
-}
-
-function getInnerSchemas(schema, schemas, objectProperties) {
-  return objectProperties.map(function(prop) {
-    return findSchema(schemas, schema.properties[prop].objectType);
-  });
-}
-
-function normalize(results, schemas, schema) {
-  var dateProperties = getPropertiesOfType(schema, 'date');
-  dateProperties.forEach(function(prop) {
-    results.forEach(function(result) {
-      result[prop] = new Date(result[prop]);
-    });
-  });
-  var objectProperties = getPropertiesOfType(schema, 'object');
-  var objectInnerSchemas = getInnerSchemas(schema, schemas, objectProperties);
-  objectInnerSchemas.forEach(function(innerSchema, i) {
-    results.forEach(function(result) {
-      normalize([result[objectProperties[i]]], schemas, innerSchema);
-    });
-  });
-  var listProperties = getPropertiesOfType(schema, 'list');
-  var listInnerSchemas = getInnerSchemas(schema, schemas, listProperties);
-  listInnerSchemas.forEach(function(innerSchema, i) {
-    results.forEach(function(result) {
-      normalize(result[listProperties[i]], schemas, innerSchema);
-    });
-  });
-  return results;
-}
-
 /**
  * onResultChange recompose results into the result instance every time that
  * there is an update on the native result instance.
@@ -118,7 +79,7 @@ function RealmResults(queryBuilder, realmResultsId, results) {
   if (!schema) {
     throw new Error(schemaName + ' schema not found');
   }
-  setProps(this, normalize(results, schemas, schema));
+  setProps(this, normalizeSchema(results, schemas, schema));
 
   [
     'every',
@@ -137,7 +98,6 @@ function RealmResults(queryBuilder, realmResultsId, results) {
       return results[method].apply(this, args);
     };
   });
-
   // var changesChannel = 'results/' + realmResultsId;
   // this.changeSubscription = PubSub.subscribe(changesChannel, function(nextResults) {
   //   onResultChange(this, nextResults);
@@ -159,24 +119,16 @@ function onResultsSuccess(result, success) {
 
 var resultMethods = {
   sum: {
-    signatures: [
-      [Types.string, Types.func]
-    ]
+    signatures: [[Types.string, Types.func]]
   },
   min: {
-    signatures: [
-      [Types.string, Types.func]
-    ]
+    signatures: [[Types.string, Types.func]]
   },
   max: {
-    signatures: [
-      [Types.string, Types.func]
-    ]
+    signatures: [[Types.string, Types.func]]
   },
   average: {
-    signatures: [
-      [Types.string, Types.func]
-    ]
+    signatures: [[Types.string, Types.func]]
   },
   sort: {
     signatures: [
@@ -207,8 +159,9 @@ Object.keys(resultMethods).forEach(function(method) {
       );
     } else {
       throw new Error(
-        'invalid arguments supplied to method ' + method +
-        '. The query will not be executed.'
+        'invalid arguments supplied to method ' +
+          method +
+          '. The query will not be executed.'
       );
     }
   };

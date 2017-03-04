@@ -34,7 +34,7 @@ typedef enum {
 @property (nonatomic, strong) NSMutableArray* realmResults;
 
 - (void)initialize:(CDVInvokedUrlCommand*)command;
-- (void)insert:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)delete:(CDVInvokedUrlCommand*)command;
 - (void)deleteAll:(CDVInvokedUrlCommand*)command;
 - (void)findAll:(CDVInvokedUrlCommand*)command;

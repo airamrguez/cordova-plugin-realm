@@ -6,9 +6,9 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -50,7 +50,7 @@
 {
     NSString* callbackId = command.callbackId;
     NSDictionary* options = [command argumentAtIndex:0 withDefault:nil];
-    
+
     [[NSFileManager defaultManager]
      removeItemAtURL:[RLMRealmConfiguration defaultConfiguration].fileURL error:nil];
 
@@ -73,31 +73,34 @@
     }
 
     [[self realms] addObject: realm];
-    
+
     NSDictionary *resultArgs = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [NSNumber numberWithInteger:realmID], @"realmInstanceID",
                                 [self schemaToJSON:realm], @"schemas",
+                                @(config.schemaVersion), @"schemaVersion",
+                                @(config.deleteRealmIfMigrationNeeded), @"deleteRealmIfMigrationNeeded",
                                 nil];
 
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                             messageAsDictionary:resultArgs];
+                                            messageAsDictionary:resultArgs];
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
 
-- (void)insert:(CDVInvokedUrlCommand*)command
+- (void)create:(CDVInvokedUrlCommand*)command
 {
     NSNumber *realmInstanceId = [command argumentAtIndex:0];
     NSString *schemaName = [command argumentAtIndex:1];
     id rawJSON = [command argumentAtIndex:2 withDefault: nil];
-    
+    BOOL update = [command argumentAtIndex:3 withDefault:false];
+
     RLMRealm *realm = [[self realms] objectAtIndex:[realmInstanceId integerValue]];
     [realm beginWriteTransaction];
     Class objectClass = NSClassFromString(schemaName);
     CDVPluginResult* result;
     if ([rawJSON isKindOfClass:[NSDictionary class]]) {
-        [objectClass createOrUpdateInRealm: realm withJSONDictionary: rawJSON];
+        [objectClass createOrUpdateInRealm: realm withJSONDictionary: rawJSON updateObjects:update];
     } else if ([rawJSON isKindOfClass:[NSArray class]]) {
-        [objectClass createOrUpdateInRealm: realm withJSONArray: rawJSON];
+        [objectClass createOrUpdateInRealm: realm withJSONArray: rawJSON updateObjects:update];
     } else {
         // TODO Improve error payload.
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
@@ -112,12 +115,12 @@
 - (void)deleteAll:(CDVInvokedUrlCommand*)command
 {
     NSNumber *realmInstanceId = [command argumentAtIndex:0];
-    
+
     RLMRealm *realm = [[self realms] objectAtIndex:[realmInstanceId integerValue]];
     [realm beginWriteTransaction];
     [realm deleteAllObjects];
     [realm commitWriteTransaction];
-    
+
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
@@ -127,7 +130,7 @@
     NSNumber *realmInstanceId = [command argumentAtIndex:0];
     NSString *schemaName = [command argumentAtIndex:1];
     NSArray *query = [command argumentAtIndex:2 withDefault:nil];
-    
+
     Class objectClass = NSClassFromString(schemaName);
     RLMRealm *realm = [[self realms] objectAtIndex:[realmInstanceId integerValue]];
     RLMResults *results = nil;
@@ -140,11 +143,11 @@
     } else {
         results = [objectClass allObjectsInRealm:realm];
     }
-    
+
     [realm beginWriteTransaction];
     [realm deleteObjects:results];
     [realm commitWriteTransaction];
-    
+
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
@@ -160,7 +163,7 @@
     NSNumber *realmInstanceId = [command argumentAtIndex:0];
     NSString *schemaName = [command argumentAtIndex:1];
     NSArray *query = [command argumentAtIndex:2 withDefault:nil];
-    
+
     Class objectClass = NSClassFromString(schemaName);
     RLMRealm *realm = [[self realms] objectAtIndex:[realmInstanceId integerValue]];
     RLMResults *results = nil;
@@ -173,7 +176,7 @@
     } else {
         results = [objectClass allObjectsInRealm:realm];
     }
-    
+
     // Sorting
     id sortFieldArg = [command argumentAtIndex:3];
     if (sortFieldArg) {
@@ -194,17 +197,17 @@
             results = [results sortedResultsUsingProperty:sortField ascending:asc];
         }
     }
-    
+
     NSInteger resultsId = [[self realmResults] count];
     [[self realmResults] addObject:[NSDictionary dictionaryWithObjectsAndKeys:
                                     results, @"results", limit, @"limit", offset, @"offset", nil]];
-    
+
     NSDictionary *resultArgs = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [NSNumber numberWithInteger:resultsId], @"realmResultsId",
                                 [self sliceResults:results from:offset to:limit], @"results",
                                 nil];
-    
-    
+
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                   messageAsDictionary:resultArgs];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -219,14 +222,14 @@
     NSDictionary* resultsInfo = [[self realmResults] objectAtIndex:[realmResultsId integerValue]];
     RLMResults* results = [resultsInfo objectForKey:@"results"];
     results = [results sortedResultsUsingProperty:property ascending:sortProperty];
-    
+
     NSNumber* offset = [resultsInfo objectForKey:@"offset"];
     NSNumber* limit = [resultsInfo objectForKey:@"limit"];
     NSDictionary *resultArgs = [NSDictionary dictionaryWithObjectsAndKeys:
                                 realmResultsId, @"realmResultsId",
                                 [self sliceResults:results from:offset to:limit], @"results",
                                 nil];
-    
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                   messageAsDictionary:resultArgs];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -273,8 +276,8 @@
     NSMutableArray *arr = [NSMutableArray new];
     NSUInteger fromIndex = offset != nil ? [offset integerValue] : 0;
     NSUInteger toIndex = limit != nil ?
-        MIN([limit integerValue] + 1, [results count]) :
-        [results count];
+    MIN([limit integerValue] + 1, [results count]) :
+    [results count];
 
     for (NSUInteger i = fromIndex; i < toIndex; i++) {
         RLMObject *object = [results objectAtIndex:i];
@@ -287,7 +290,7 @@
 {
     NSMutableArray* postfixExp = [[NSMutableArray alloc] init];
     NSMutableArray* stack = [[NSMutableArray alloc] init];
-    
+
     NSArray* filledOperations = [self addImplicitAndOperators:operations];
 
     for (NSDictionary* operation in filledOperations) {
@@ -337,7 +340,7 @@
 
 
     NSMutableArray* predicates = [[NSMutableArray alloc] init];
-    
+
     for (NSDictionary* operation in postfixExp) {
         NSString *opName = [operation valueForKey:@"name"];
         if ([opName isEqualToString:@"not"]) {
@@ -388,10 +391,10 @@
         }
         i++;
     }
-    
+
     return [expression copy];
 }
-         
+
 - (NSCompoundPredicate*)createPredicate:(NSDictionary*)op for:(Class)objectClass {
     DKPredicateBuilder* predicate = [[DKPredicateBuilder alloc] init];
     NSString *opName = [op valueForKey:@"name"];
@@ -440,7 +443,7 @@
     } else if ([opName isEqualToString:@"in"]) {
         NSArray* inArg;
         NSArray* inArgRawValues = [args objectAtIndex: 1];
-        
+
         if ([self isPropertyNSDate:objectClass withPath:keypathComponents]) {
             NSMutableArray* tmpDates = [[NSMutableArray alloc] initWithCapacity:
                                         [inArgRawValues count]];
@@ -497,12 +500,12 @@
 - (NSCompoundPredicate*)createPredicate:(NSDictionary*)opA and:(NSDictionary*)opB
                            operatedWith:(NSString*)operator for:(Class)objectClass {
     NSMutableArray* predicates = [[NSMutableArray alloc] init];
-    
+
     [predicates addObject:[self createPredicate:opA for:objectClass]];
     if (opB != nil) {
         [predicates addObject:[self createPredicate:opB for:objectClass]];
     }
-    
+
     if ([operator isEqualToString:@"not"]) {
         return [NSCompoundPredicate notPredicateWithSubpredicate:[predicates objectAtIndex:0]];
     } else if ([operator isEqualToString: @"or"]) {
@@ -514,7 +517,7 @@
 - (void)aggregate:(CDVInvokedUrlCommand*)command operation:(ResultOperationType)opType {
     NSNumber* realmResultsId = [command argumentAtIndex:0];
     NSString* property = [command argumentAtIndex:1];
-    
+
     NSDictionary* resultsInfo = [[self realmResults] objectAtIndex:[realmResultsId integerValue]];
     RLMResults* results = [resultsInfo objectForKey:@"results"];
 
@@ -535,7 +538,7 @@
         default:
             break;
     }
-    
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                       messageAsDouble:[value doubleValue]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -545,14 +548,14 @@
 
 - (RLMRealmConfiguration*)getConfig:(NSDictionary *)options {
     RLMRealmConfiguration *config = [RLMRealmConfiguration defaultConfiguration];
-    
+
     if (options == nil) {
         return config;
     }
-    
+
     BOOL deleteRealmIfMigrationNeeded = [[options objectForKey:@"deleteRealmIfMigrationNeeded"] boolValue];
     config.deleteRealmIfMigrationNeeded = deleteRealmIfMigrationNeeded;
-    
+
     NSArray* rawSchemas = [options objectForKey: @"schemas"];
     if ([rawSchemas count] > 0) {
         NSMutableArray *objectClasses = [[NSMutableArray alloc] init];
@@ -560,12 +563,12 @@
             Class objectClass = NSClassFromString(className);
             [objectClasses addObject: objectClass];
         }
-        
+
         [config setObjectClasses:[objectClasses copy]];
     }
-    
+
     config.schemaVersion = [([options objectForKey:@"schemaVersion"] ?: 0) unsignedIntValue];
-    
+
     return config;
 }
 
@@ -594,7 +597,7 @@
                 NSUInteger endRange = [originalType rangeOfString:@">"].location;
                 NSString* className = [originalType substringWithRange:
                                        NSMakeRange(startRange + 1, endRange - startRange - 1)];
-                
+
                 return [self isPropertyNSDate:NSClassFromString(className)
                                      withPath:[propertyPath subarrayWithRange:
                                                NSMakeRange(1, [propertyPath count] - 1)]];
@@ -713,7 +716,7 @@
                 NSUInteger startRange = [originalType rangeOfString:@"<"].location;
                 NSUInteger endRange = [originalType rangeOfString:@">"].location;
                 return [originalType substringWithRange:
-                                       NSMakeRange(startRange + 1, endRange - startRange - 1)];
+                        NSMakeRange(startRange + 1, endRange - startRange - 1)];
             } else if ([originalType hasPrefix:@"T@"]) {
                 NSUInteger endRange = [originalType rangeOfString:@"\","].location;
                 return [originalType substringWithRange:

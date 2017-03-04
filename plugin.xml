@@ -13,6 +13,7 @@
     IMPORTANT: This plugin is still under development.
     Use it on your own risk.
   </info>
+  <js-module name="utils" src="www/utils.js" />
   <js-module name="Types" src="www/Types.js" />
   <js-module name="checkArgs" src="www/checkArgs.js" />
   <js-module name="RealmResults" src="www/RealmResults.js" />
@@ -24,13 +25,6 @@
 
   <platform name="android">
     <framework src="src/android/realm.gradle" custom="true" type="gradleReference"/>
-    <source-file src="src/android/realm-android-library-2.2.1.aar" target-dir="libs" framework="true" />
-    <source-file src="src/android/realm-gradle-plugin-2.2.1.jar" target-dir="libs" />
-    <source-file src="src/android/realm-annotations-processor-2.2.1.jar" target-dir="libs" />
-    <source-file src="src/android/realm-annotations-2.2.1.jar" target-dir="libs" />
-    <source-file src="src/android/realm-transformer-2.2.1.jar" target-dir="libs" />
-
-    <framework src="com.getkeepsafe.relinker:relinker:1.2.2" />
     <framework src="com.facebook.stetho:stetho:1.4.1" />
     <framework src="com.uphyca:stetho_realm:2.0.0" />
     <framework src="com.google.code.gson:gson:2.3" />
@@ -41,7 +35,8 @@
       </feature>
     </config-file>
     <source-file src="src/android/io/github/airamrguez/plugins/realm/RealmPlugin.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
-    <source-file src="src/android/io/github/airamrguez/plugins/realm/Schema.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
+    <source-file src="src/android/io/github/airamrguez/plugins/realm/ResultsSlice.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
+    <!--<source-file src="src/android/io/github/airamrguez/plugins/realm/Schema.java" target-dir="src/io/github/airamrguez/plugins/realm"/> -->
   </platform>
   <platform name="ios">
     <!-- Eventually Cordova will support xcworkspace so this plugin will use cocoapods. -->

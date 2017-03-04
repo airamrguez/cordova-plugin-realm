@@ -28,13 +28,9 @@ function Realm() {}
  * Realm native object.
  */
 Realm.init = function(configuration, success, error) {
-  exec(
-    onInitSuccess(success),
-    error,
-    'RealmPlugin',
-    'initialize',
-    [configuration]
-  );
+  exec(onInitSuccess(success), error, 'RealmPlugin', 'initialize', [
+    configuration
+  ]);
 };
 
 module.exports = {

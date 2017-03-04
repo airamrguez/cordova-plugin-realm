@@ -37,7 +37,7 @@ var types = {
   },
   arrayOf: function(type) {
     return {
-      typeOf: (type.instance && type.instance().name) || type.typeOf,
+      typeOf: type.instance && type.instance().name || type.typeOf,
       array: true
     };
   },

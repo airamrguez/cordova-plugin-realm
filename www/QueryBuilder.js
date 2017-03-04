@@ -37,17 +37,16 @@ function appendOperation(collection, name, originalArgs, validation) {
   } else {
     this.valid &= validArgs;
     throw new Error(
-      'invalid arguments supplied to method ' + name +
-      '. The query will be aborted.'
+      'invalid arguments supplied to method ' +
+        name +
+        '. The query will be aborted.'
     );
   }
 }
 
 var queryMethods = {
   beginGroup: {
-    signatures: [
-      []
-    ]
+    signatures: [[]]
   },
   beginsWith: {
     signatures: [
@@ -68,9 +67,7 @@ var queryMethods = {
     ]
   },
   endGroup: {
-    signatures: [
-      []
-    ]
+    signatures: [[]]
   },
   endsWith: {
     signatures: [
@@ -87,16 +84,10 @@ var queryMethods = {
     ]
   },
   greaterThan: {
-    signatures: [
-      [Types.string, Types.Date],
-      [Types.string, Types.number]
-    ]
+    signatures: [[Types.string, Types.Date], [Types.string, Types.number]]
   },
   greaterThanOrEqualTo: {
-    signatures: [
-      [Types.string, Types.Date],
-      [Types.string, Types.number]
-    ]
+    signatures: [[Types.string, Types.Date], [Types.string, Types.number]]
   },
   in: {
     signatures: [
@@ -108,41 +99,25 @@ var queryMethods = {
     ]
   },
   isEmpty: {
-    signatures: [
-      [Types.string]
-    ]
+    signatures: [[Types.string]]
   },
   isNotEmpty: {
-    signatures: [
-      [Types.string]
-    ]
+    signatures: [[Types.string]]
   },
   isNotNull: {
-    signatures: [
-      [Types.string]
-    ]
+    signatures: [[Types.string]]
   },
   isNull: {
-    signatures: [
-      [Types.string]
-    ]
+    signatures: [[Types.string]]
   },
   lessThan: {
-    signatures: [
-      [Types.string, Types.Date],
-      [Types.string, Types.number]
-    ]
+    signatures: [[Types.string, Types.Date], [Types.string, Types.number]]
   },
   lessThanOrEqualTo: {
-    signatures: [
-      [Types.string, Types.Date],
-      [Types.string, Types.number]
-    ]
+    signatures: [[Types.string, Types.Date], [Types.string, Types.number]]
   },
   not: {
-    signatures: [
-      []
-    ]
+    signatures: [[]]
   },
   notEqualTo: {
     signatures: [
@@ -153,19 +128,13 @@ var queryMethods = {
     ]
   },
   or: {
-    signatures: [
-      []
-    ]
+    signatures: [[]]
   },
   limit: {
-    signatures: [
-      [Types.number]
-    ]
+    signatures: [[Types.number]]
   },
   offset: {
-    signatures: [
-      [Types.number]
-    ]
+    signatures: [[Types.number]]
   }
 };
 
@@ -186,7 +155,11 @@ function onExecuteSuccess(queryBuilder, success) {
   return function(data) {
     // Delete method does not return anything.
     if (data) {
-      return success(new RealmResults(queryBuilder, data.realmResultsId, data.results));
+      return success(new RealmResults(
+        queryBuilder,
+        data.realmResultsId,
+        data.results
+      ));
     }
     return success();
   };
@@ -195,9 +168,7 @@ function onExecuteSuccess(queryBuilder, success) {
 // Append execution queries
 var executionQueries = {
   findAll: {
-    signatures: [
-      [Types.func]
-    ]
+    signatures: [[Types.func]]
   },
   findAllSorted: {
     signatures: [
@@ -207,9 +178,7 @@ var executionQueries = {
     ]
   },
   delete: {
-    signatures: [
-      [Types.func]
-    ]
+    signatures: [[Types.func]]
   }
 };
 
@@ -233,8 +202,9 @@ Object.keys(executionQueries).forEach(function(method) {
       ]);
     } else {
       throw new Error(
-        'invalid arguments supplied to method ' + method +
-        '. The query will not be executed.'
+        'invalid arguments supplied to method ' +
+          method +
+          '. The query will not be executed.'
       );
     }
   };

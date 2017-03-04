@@ -11,25 +11,18 @@ function RealmNativeInstance(config) {
 }
 
 RealmNativeInstance.prototype = {
-  insert: function(schemaName, json, success, error) {
+  create: function(schemaName, json, update, success, error) {
     var realmInstanceID = this.config.realmInstanceID;
-    exec(
-      success,
-      error,
-      'RealmPlugin',
-      'insert',
-      [realmInstanceID, schemaName, json]
-    );
+    exec(success, error, 'RealmPlugin', 'create', [
+      realmInstanceID,
+      schemaName,
+      json,
+      update
+    ]);
   },
   deleteAll: function(success, error) {
     var realmInstanceID = this.config.realmInstanceID;
-    exec(
-      success,
-      error,
-      'RealmPlugin',
-      'deleteAll',
-      [realmInstanceID]
-    );
+    exec(success, error, 'RealmPlugin', 'deleteAll', [realmInstanceID]);
   },
   where: function(schemaName) {
     return new QueryBuilder(this.config, schemaName);

@@ -58,7 +58,7 @@ static NSString *MCTypeStringFromPropertyKey(Class class, NSString *key) {
 
 static NSInteger const kCreateBatchSize = 100;
 
-+ (NSArray *)createOrUpdateInRealm:(RLMRealm *)realm withJSONArray:(NSArray *)array {
++ (NSArray *)createOrUpdateInRealm:(RLMRealm *)realm withJSONArray:(NSArray *)array updateObjects:(BOOL)update {
     NSInteger count = array.count;
     NSMutableArray *result = [NSMutableArray array];
 
@@ -67,7 +67,7 @@ static NSInteger const kCreateBatchSize = 100;
         @autoreleasepool {
             for (NSInteger subIndex=0; subIndex<size; subIndex++) {
                 NSDictionary *dictionary = array[index*kCreateBatchSize+subIndex];
-                id object = [self createOrUpdateInRealm:realm withJSONDictionary:dictionary];
+                id object = [self createOrUpdateInRealm:realm withJSONDictionary:dictionary updateObjects:update];
                 [result addObject:object];
             }
         }
@@ -76,8 +76,10 @@ static NSInteger const kCreateBatchSize = 100;
     return [result copy];
 }
 
-+ (instancetype)createOrUpdateInRealm:(RLMRealm *)realm withJSONDictionary:(NSDictionary *)dictionary {
-	return [self createOrUpdateInRealm:realm withValue:[self mc_createObjectFromJSONDictionary:dictionary]];
++ (instancetype)createOrUpdateInRealm:(RLMRealm *)realm withJSONDictionary:(NSDictionary *)dictionary updateObjects:(BOOL)update {
+	return update ?
+        [self createOrUpdateInRealm:realm withValue:[self mc_createObjectFromJSONDictionary:dictionary]] :
+        [self createInRealm:realm withValue:[self mc_createObjectFromJSONDictionary:dictionary]];
 }
 
 + (instancetype)objectInRealm:(RLMRealm *)realm withPrimaryKeyValue:(id)primaryKeyValue {
@@ -167,10 +169,10 @@ static NSInteger const kCreateBatchSize = 100;
     } else {
         dictionary = origDict;
     }
-    
+
 	for (NSString *dictionaryKeyPath in mapping) {
 		NSString *objectKeyPath = mapping[dictionaryKeyPath];
-		
+
 		id value = [dictionary valueForKeyPath:dictionaryKeyPath];
 
         if (value) {
@@ -212,7 +214,7 @@ static NSInteger const kCreateBatchSize = 100;
 				}
 				currentDictionary = [currentDictionary valueForKey:component];
 			}
-			
+
             value = value ?: [NSNull null];
 			[result setValue:value forKeyPath:objectKeyPath];
 		}

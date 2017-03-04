@@ -14,6 +14,31 @@ This plugin provides an interface to Realm mobile database, particularly iOS and
 cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ```
 
+### Android Installation
+
+**IMPORTANT**: On Android you have to **manually** add the Realm classpath dependency in the build.gradle file. This file is located under `[YOUR_CORDOVA_PROJECT]/platforms/android/`. Your build.gradle file should look like the below code:
+
+```groovy
+[...]
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    // Switch the Android Gradle plugin version requirement depending on the
+    // installed version of Gradle. This dependency is documented at
+    // http://tools.android.com/tech-docs/new-build-system/version-compatibility
+    // and https://issues.apache.org/jira/browse/CB-8143
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'io.realm:realm-gradle-plugin:2.0.2'
+    }
+}
+[...]
+```
+
+
 ## Workflow
 
 ![cordova-plugin-realm workflow](https://cloud.githubusercontent.com/assets/1159448/21962439/4b524196-db26-11e6-9735-f2efdbba28d8.png)
@@ -68,6 +93,23 @@ Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
       return;
     }
   });
+});
+```
+
+### Inserts and updates
+
+```js
+var people = [{
+  id: 1,
+  name: "Joanne"
+}, {
+  id: 2,
+  name: "Airam"
+}];
+realm.create('Person', people, true, function() {
+  console.log('inserted');
+}, function () {
+  console.error('error');
 });
 ```
 
@@ -134,7 +176,7 @@ realm.where('Person')
 #### Realm instance methods.
 
   - `where(schemaName: string): QueryBuilder` returns a query object which you can use to append query methods.
-  - `insert(schemaName, json, success, error)` inserts a json object or array into the database.
+  - `create(schemaName: string, json: Array | Object, update: boolean, success, error)`: create or update an array or an object into the database.
   - `deleteAll(schemaName)` clears all objects.
 
 ### Queries

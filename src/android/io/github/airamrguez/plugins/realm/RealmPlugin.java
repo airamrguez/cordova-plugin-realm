@@ -60,8 +60,8 @@ public class RealmPlugin extends CordovaPlugin {
             throws JSONException {
         if (action.equals("initialize")) {
             return initialize(args, callbackContext);
-        } else if (action.equals("insert")) {
-            return insert(args, callbackContext);
+        } else if (action.equals("create")) {
+            return create(args, callbackContext);
         } else if (action.equals("findAll")) {
             return findAll(args, callbackContext);
         }
@@ -104,14 +104,16 @@ public class RealmPlugin extends CordovaPlugin {
         return true;
     }
 
-    private boolean insert(JSONArray args, CallbackContext callbackContext) {
+    private boolean create(JSONArray args, CallbackContext callbackContext) {
         int realmInstanceID;
         String schemaName;
         String rawJSON;
+        Boolean update = false;
         try {
             realmInstanceID = args.getInt(0);
             schemaName = args.getString(1);
             rawJSON = args.getString(2);
+            update = args.getBoolean(3);
         } catch (JSONException e) {
             callbackContext.error("invalid parameter");
             PluginResult r = new PluginResult(PluginResult.Status.JSON_EXCEPTION);
@@ -136,9 +138,17 @@ public class RealmPlugin extends CordovaPlugin {
         }
         realm.beginTransaction();
         if (isJSONArray) {
-            realm.createOrUpdateAllFromJson(objectClass, rawJSON);
+            if (update) {
+                realm.createOrUpdateAllFromJson(objectClass, rawJSON);
+            } else {
+                realm.createAllFromJson(objectClass, rawJSON);
+            }
         } else {
-            realm.createOrUpdateObjectFromJson(objectClass, rawJSON);
+            if (update) {
+                realm.createOrUpdateObjectFromJson(objectClass, rawJSON);
+            } else {
+                realm.createObjectFromJson(objectClass, rawJSON);
+            }
         }
         realm.commitTransaction();
 
