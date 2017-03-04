@@ -4,7 +4,11 @@ var utils = require('./utils');
 var path = require('path');
 
 var ANDROID_SRC_PATH = path.join(
-  'io', 'github', 'airamrguez', 'plugins', 'realm'
+  'io',
+  'github',
+  'airamrguez',
+  'plugins',
+  'realm'
 );
 
 function javaTypeForNonOptionalType(propType, schemas) {
@@ -22,21 +26,19 @@ function javaTypeForNonOptionalType(propType, schemas) {
       return 'String';
     case 'date':
       return 'Date';
-    case 'list':
-      {
-        var objectType = propType.objectType;
-        if (utils.typeExists(objectType, schemas)) {
-          return 'RealmList<' + objectType + '>';
-        }
-        throw new Error('type ' + propType.objectType + ' not found in schema');
+    case 'list': {
+      var objectType = propType.objectType;
+      if (utils.typeExists(objectType, schemas)) {
+        return 'RealmList<' + objectType + '>';
       }
-    default:
-      {
-        if (utils.typeExists(type, schemas)) {
-          return type;
-        }
-        throw new Error('unsupported type ' + type);
+      throw new Error('type ' + propType.objectType + ' not found in schema');
+    }
+    default: {
+      if (utils.typeExists(type, schemas)) {
+        return type;
       }
+      throw new Error('unsupported type ' + type);
+    }
   }
 }
 
@@ -65,11 +67,8 @@ function isPropertyList(propType) {
 }
 
 function isSchemaProperty(propType, schemas) {
-  return (
-    typeof propType === 'string' && utils.typeExists(propType, schemas)
-  ) || (
-    typeof propType === 'object' && utils.typeExists(propType.type, schemas)
-  );
+  return typeof propType === 'string' && utils.typeExists(propType, schemas) ||
+    typeof propType === 'object' && utils.typeExists(propType.type, schemas);
 }
 
 // object properties are always optional and do not need an optional designation.
@@ -80,13 +79,16 @@ function isPropertyNullable(propType, schemas) {
 
 function javaType(propType, schemas) {
   if (typeof propType === 'string') {
-    return javaTypeForNonOptionalType({
-      type: propType
-    }, schemas);
+    return javaTypeForNonOptionalType(
+      {
+        type: propType
+      },
+      schemas
+    );
   } else if (typeof propType === 'object') {
     if (propType.optional && propType.type === 'list') {
-      throw new Error('A list type cannot be optional. Check propType ' +
-        propType
+      throw new Error(
+        'A list type cannot be optional. Check propType ' + propType
       );
     }
     if (isPropertyNullable(propType, schemas)) {
@@ -145,7 +147,7 @@ function getTagForProperty(schema, propName, propValue) {
 // FIXME Deeper deps.
 function getSchemaDependencies(schemaName, dependencies) {
   return dependencies.adjacentsForNode(schemaName).map(function(node) {
-    return node.id;
+    return node;
   });
 }
 
@@ -203,10 +205,16 @@ JavaBuilder.prototype.generateSourceFiles = function() {
   var schemas = this.schemas;
   var dependencies = this.dependencyGraph;
   var androidPackageDir = path.resolve(
-    project.projectRoot, 'platforms', 'android', 'src', ANDROID_SRC_PATH
+    project.projectRoot,
+    'platforms',
+    'android',
+    'src',
+    ANDROID_SRC_PATH
   );
   var pluginDestDir = path.join(
-    project.pluginSrcDir, 'android', ANDROID_SRC_PATH
+    project.pluginSrcDir,
+    'android',
+    ANDROID_SRC_PATH
   );
   var modelTpl = utils.getTemplate('Java');
   var serializerTpl = utils.getTemplate('JavaSerializer');
@@ -216,14 +224,22 @@ JavaBuilder.prototype.generateSourceFiles = function() {
     var serializerClass = renderSerializerClass(serializerTpl, schema, schemas);
     var modelClassFileName = schema.name + '.java';
     var serializerClassFileName = schema.name + 'Serializer.java';
-    writeClassFile([
-      path.join(pluginDestDir, modelClassFileName),
-      path.join(androidPackageDir, modelClassFileName)
-    ], modelClass, schema);
-    writeClassFile([
-      path.join(pluginDestDir, serializerClassFileName),
-      path.join(androidPackageDir, serializerClassFileName)
-    ], serializerClass, schema);
+    writeClassFile(
+      [
+        path.join(pluginDestDir, modelClassFileName),
+        path.join(androidPackageDir, modelClassFileName)
+      ],
+      modelClass,
+      schema
+    );
+    writeClassFile(
+      [
+        path.join(pluginDestDir, serializerClassFileName),
+        path.join(androidPackageDir, serializerClassFileName)
+      ],
+      serializerClass,
+      schema
+    );
   });
 };
 
