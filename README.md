@@ -18,7 +18,7 @@ Be patient. It will take a while.
 
 ### Android Installation
 
-**IMPORTANT**: On Android you have to **manually** add the Realm classpath dependency in the build.gradle file. This file is located under `[YOUR_CORDOVA_PROJECT]/platforms/android/`. Your build.gradle file should look like the below code:
+**IMPORTANT**: On Android you have to **manually** add the Realm classpath dependency. Your `[YOUR_CORDOVA_PROJECT]/platforms/android/build.gradle` file should look like the code below:
 
 ```groovy
 [...]
