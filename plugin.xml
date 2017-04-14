@@ -1,17 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin
-  xmlns="http://apache.org/cordova/ns/plugins/1.0"
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  id="cordova-plugin-realm"
-  version="0.0.1">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-realm" version="0.0.1">
   <name>cordova-plugin-realm</name>
   <description>Realm mobile database plugin for Cordova.</description>
   <author>Airam Rguez</author>
   <keywords>realm, database, nosql, mobile, ios, android</keywords>
   <repo>https://github.com/airamrguez/cordova-plugin-realm</repo>
   <info>
-    IMPORTANT: This plugin is still under development.
-    Use it on your own risk.
+    IMPORTANT: This plugin is still under development. Use it on your own risk.
   </info>
   <js-module name="utils" src="www/utils.js" />
   <js-module name="Types" src="www/Types.js" />
@@ -24,7 +19,7 @@
   </js-module>
 
   <platform name="android">
-    <framework src="src/android/realm.gradle" custom="true" type="gradleReference"/>
+    <framework src="src/android/realm.gradle" custom="true" type="gradleReference" />
     <framework src="com.facebook.stetho:stetho:1.4.1" />
     <framework src="com.uphyca:stetho_realm:2.0.0" />
     <framework src="com.google.code.gson:gson:2.3" />
@@ -34,10 +29,11 @@
         <param name="android-package" value="io.github.airamrguez.plugins.realm.RealmPlugin" />
       </feature>
     </config-file>
-    <source-file src="src/android/io/github/airamrguez/plugins/realm/RealmPlugin.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
-    <source-file src="src/android/io/github/airamrguez/plugins/realm/ResultsSlice.java" target-dir="src/io/github/airamrguez/plugins/realm"/>
+    <source-file src="src/android/io/github/airamrguez/plugins/realm/RealmPlugin.java" target-dir="src/io/github/airamrguez/plugins/realm" />
+    <source-file src="src/android/io/github/airamrguez/plugins/realm/ResultsSlice.java" target-dir="src/io/github/airamrguez/plugins/realm" />
     <!--<source-file src="src/android/io/github/airamrguez/plugins/realm/Schema.java" target-dir="src/io/github/airamrguez/plugins/realm"/> -->
   </platform>
+
   <platform name="ios">
     <!-- Eventually Cordova will support xcworkspace so this plugin will use cocoapods. -->
     <!--<framework src="Realm" type="podspec" spec="~> 2.1.0" />-->
@@ -75,7 +71,22 @@
       </feature>
     </config-file>
   </platform>
+
+  <platform name="browser">
+    <config-file target="config.xml" parent="/*">
+      <feature name="RealmPlugin">
+        <param name="browser-package" value="RealmPlugin" />
+      </feature>
+    </config-file>
+
+    <js-module src="src/browser/client/schemaProxy.js" name="schemaProxy" />
+    <js-module src="src/browser/client/RealmProxy.js" name="RealmProxy">
+      <runs />
+    </js-module>
+
+  </platform>
+
   <hook type="before_plugin_install" src="hooks/copyResources.js" />
-  <hook type="before_plugin_install" src="hooks/addProjectHook.js" />
+  <hook type="before_plugin_install" src="hooks/addProjectHooks.js" />
   <hook type="before_plugin_uninstall" src="hooks/removeResources.js" />
 </plugin>

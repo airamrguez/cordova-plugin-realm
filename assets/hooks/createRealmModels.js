@@ -7,19 +7,30 @@ module.exports = function(context) {
   var Schema = require('./Schema');
   var JavaBuilder = require('./JavaBuilder');
   var ObjcBuilder = require('./ObjcBuilder');
+  var BrowserBuilder = require('./BrowserBuilder');
 
+  function getRealmrcDir(config, opts) {
+    var content = config.doc.find('content');
+    var contentSrc = content && content.attrib.src;
+    return opts.plugin && contentSrc === 'cdvtests/index.html'
+      ? opts.plugin.dir
+      : opts.projectRoot;
+  }
+
+  var requireCdv = context.requireCordovaModule;
   var opts = context.opts;
-  var platforms = opts.cordova.platforms;
   var projectRoot = opts.projectRoot;
-  var realmrc = require(path.join(opts.projectRoot, 'realmrc.json'));
-  var pluginSrcDir = path.resolve(
-    projectRoot, 'plugins', 'cordova-plugin-realm', 'src'
-  );
-  var ConfigParser = context.requireCordovaModule(
-    'cordova-common/src/ConfigParser/ConfigParser'
-  );
-  var configFile = path.resolve(context.opts.projectRoot, 'config.xml');
+  var ConfigParser = requireCdv('cordova-common/src/ConfigParser/ConfigParser');
+  var configFile = path.resolve(projectRoot, 'config.xml');
   var config = new ConfigParser(configFile);
+  var realmrc = require(path.join(getRealmrcDir(config, opts), 'realmrc.json'));
+  var platforms = opts.cordova.platforms;
+  var pluginSrcDir = path.resolve(
+    projectRoot,
+    'plugins',
+    'cordova-plugin-realm',
+    'src'
+  );
 
   function createRealmModels() {
     var schemas = realmrc.schemas;
@@ -44,6 +55,9 @@ module.exports = function(context) {
           break;
         case 'android':
           builder = new JavaBuilder(project, sortedSchemas, dependencyGraph);
+          break;
+        case 'browser':
+          builder = new BrowserBuilder(project, sortedSchemas);
           break;
         default:
           console.warn('Platform ', platform, ' is not supported.');

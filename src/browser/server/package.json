@@ -1,0 +1,17 @@
+{
+  "name": "cordova-realm-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Airam Rguez",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "cors": "^2.8.3",
+    "express": "^4.15.2",
+    "realm": "^1.2.0"
+  }
+}

@@ -33,8 +33,9 @@ Realm.init = function(configuration, success, error) {
   ]);
 };
 
-module.exports = {
-  Realm: Realm,
+Realm.Types = {
   Case: Types.Case.enum,
   Sort: Types.Sort.enum
 };
+
+module.exports = Realm;

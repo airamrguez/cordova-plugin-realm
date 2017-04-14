@@ -1,2 +1,10 @@
-extends: google
+extends:
+  - google
+  - plugin:jasmine/recommended
 installedESLint: true
+rules:
+  require-jsdoc: off
+plugins:
+  - jasmine
+env:
+  jasmine: true
