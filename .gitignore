@@ -4,3 +4,4 @@ npm-debug.log*
 realm-object-server
 winstom.realm*
 default.realm*
+src/browser/server/bin/cdv-realm
