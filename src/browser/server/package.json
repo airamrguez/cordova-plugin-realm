@@ -1,6 +1,6 @@
 {
-  "name": "cordova-realm-server",
-  "version": "1.0.0",
+  "name": "@airamrguez/cdv-realm",
+  "version": "0.0.1-alpha.1",
   "description": "",
   "preferGlobal": true,
   "bin": {
