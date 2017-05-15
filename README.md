@@ -6,7 +6,7 @@ This is a Work In Progress. **DO NOT USE IT**. The API will change.
 
 ## About
 
-This plugin provides an interface to Realm mobile database, particularly iOS and Android.
+This plugin provides an interface to Realm mobile database for iOS, Android and the browser.
 
 ## Installation
 
@@ -19,6 +19,8 @@ Be patient. It will take a while.
 ### Android Installation
 
 **IMPORTANT**: On Android you have to **manually** add the Realm classpath dependency. Your `[YOUR_CORDOVA_PROJECT]/platforms/android/build.gradle` file should look like the code below:
+
+[**If you think that this step should be avoided then upvote the opened JIRA ticket by clicking here.**](https://issues.apache.org/jira/browse/CB-11664)
 
 ```groovy
 [...]
@@ -40,10 +42,26 @@ buildscript {
 [...]
 ```
 
+## Browser
+
+On your project root directory add the browser platform:
+
+```
+cordova platform add browser
+```
+
+Install @airamrguez/cdv-realm (_not yet on npm_) and launch it before working on the browser.
+
+```
+npm install -g cordova-realm-server
+cdv-realm
+```
+
+See the Workflow section below to see how to start using Realm in Cordova.
 
 ## Workflow
 
-![cordova-plugin-realm workflow](https://cloud.githubusercontent.com/assets/1159448/21962439/4b524196-db26-11e6-9735-f2efdbba28d8.png)
+![cordova-plugin-realm workflow](https://cloud.githubusercontent.com/assets/1159448/25042398/0e590fe4-2118-11e7-87d1-b18b2509c3ab.png)
 
 ## Usage
 
@@ -139,7 +157,7 @@ Write complex queries and get the results sorted by a field.
 realm.where('Person')
   .between('age', 18, 39)
   .beginGroup()
-    .equalTo('name', 'Peter', Realm.Case.SENSITIVE)
+    .equalTo('name', 'Peter', Realm.Types.Case.SENSITIVE)
     .or()
     .contains('name', 'Jo')
   .endGroup()
@@ -149,6 +167,14 @@ realm.where('Person')
       console.log('Result ', i, result);
     });
   });
+```
+
+### Deletes
+
+```js
+realm.where('Task').equalTo('id', 4).delete(() => {
+  console.log('Task with id', 4, 'deleted.');
+});
 ```
 
 ### Results
@@ -190,11 +216,11 @@ Queries methods are auto-explanatory. Each condition of the query is implicitly 
   - `lessThan(fieldName, value)`
   - `greaterThanOrEqualTo(fieldName, value)`
   - `lessThanOrEqualTo(fieldName, value)`
-  - `equalTo(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
-  - `notEqualTo(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
-  - `contains(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
-  - `beginsWith(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
-  - `endsWith(fieldName, value, casing = cordova.plugins.realm.Case.INSENSITIVE)`
+  - `equalTo(fieldName, value, casing = cordova.plugins.Realm.Types.Case.INSENSITIVE)`
+  - `notEqualTo(fieldName, value, casing = cordova.plugins.Realm.Types.Case.INSENSITIVE)`
+  - `contains(fieldName, value, casing = cordova.plugins.Realm.Types.Case.INSENSITIVE)`
+  - `beginsWith(fieldName, value, casing = cordova.plugins.Realm.Types.Case.INSENSITIVE)`
+  - `endsWith(fieldName, value, casing = cordova.plugins.Realm.Types.Case.INSENSITIVE)`
   - `isNull(fieldName)`
   - `isNotNull(fieldName)`
   - `isEmpty(fieldName)`
@@ -213,6 +239,6 @@ Add left parenthesis or right parenthesis with:
 End up your query with one of the following methods:
   - `findAll(success)`
   - `findAllSorted(fieldName, success)`
-  - `findAllSorted(fieldName, sorting = cordova.plugins.realm.Sort.ASCENDING, success)`
-  - `findAllSorted(fieldName: Array<string>, sorting: Array<cordova.plugins.realm.Sort.ASCENDING>, success)`
+  - `findAllSorted(fieldName, sorting = cordova.plugins.realm.Types.Sort.ASCENDING, success)`
+  - `findAllSorted(fieldName: Array<string>, sorting: Array<cordova.plugins.realm.Types.Sort.ASCENDING>, success)`
   - `delete(success)`
