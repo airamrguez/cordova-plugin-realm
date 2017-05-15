@@ -1,11 +1,10 @@
-#! /usr/bin/env node
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Realm = require('realm');
 
 const RealmQuery = require('./RealmQuery');
-const utils = require('../../../www/utils');
+const utils = require('../../../../www/utils');
 
 const app = express();
 app.use(cors());
@@ -14,7 +13,7 @@ app.use(bodyParser.json());
 const realms = new Map();
 const realmResults = new Map();
 
-app.post('/initialize', function(req, res) {
+app.post('/initialize', (req, res) => {
   const { configuration, schema } = req.body;
 
   const realmID = realms.size;

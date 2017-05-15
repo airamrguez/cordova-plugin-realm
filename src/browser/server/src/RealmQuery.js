@@ -1,4 +1,4 @@
-const Types = require('../../../www/Types');
+const Types = require('../../../../www/Types');
 
 const Case = Types.Case.enum;
 const Sort = Types.Sort.enum;
@@ -71,8 +71,8 @@ function createQuery(expression) {
           case 'beginsWith':
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `BEGINSWITH${caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${op} ${escapeValue(args[1])}`);
+            const caseOp = `BEGINSWITH${caseSensitive ? '' : '[c]'}`;
+            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
             break;
           case 'between': {
             const field = args[0];
@@ -85,9 +85,9 @@ function createQuery(expression) {
             const field = args[0];
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `CONTAINS${caseSensitive ? '' : '[c]'}`;
+            const caseOp = `CONTAINS${caseSensitive ? '' : '[c]'}`;
             const arg1 = escapeValue(args[1]);
-            query.push(`${field} ${op} ${arg1}`);
+            query.push(`${field} ${caseOp} ${arg1}`);
             break;
           }
           case 'endGroup':
@@ -97,16 +97,16 @@ function createQuery(expression) {
             const field = args[0];
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `ENDSWITH${caseSensitive ? '' : '[c]'}`;
+            const caseOp = `ENDSWITH${caseSensitive ? '' : '[c]'}`;
             const arg1 = escapeValue(args[1]);
-            query.push(`${field} ${op} ${arg1}`);
+            query.push(`${field} ${caseOp} ${arg1}`);
             break;
           }
           case 'equalTo': {
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `==${caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${op} ${escapeValue(args[1])}`);
+            const caseOp = `==${caseSensitive ? '' : '[c]'}`;
+            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
             break;
           }
           case 'greaterThan':
@@ -117,9 +117,10 @@ function createQuery(expression) {
             break;
           case 'in': {
             console.warn('Not supported in the browser');
+            // FIXME!
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `IN${caseSensitive ? '' : '[c]'}`;
+            const caseOp = `IN${caseSensitive ? '' : '[c]'}`;
             query.push(`${args[0]} IN ${escapeValue(args[1])}`);
             break;
           }
@@ -137,8 +138,8 @@ function createQuery(expression) {
           case 'notEqualTo': {
             const caseSensitive = args.length === 3 &&
               args[2] === Case.SENSITIVE;
-            const op = `!={caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${op} ${escapeValue(args[1])}`);
+            const caseOp = `!={caseSensitive ? '' : '[c]'}`;
+            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
             break;
           }
           case 'not':

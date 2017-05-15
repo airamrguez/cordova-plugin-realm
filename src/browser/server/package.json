@@ -2,8 +2,14 @@
   "name": "cordova-realm-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "preferGlobal": true,
+  "bin": {
+    "cdv-realm": "bin/cdv-realm.js"
+  },
+  "main": "src/index.js",
   "scripts": {
+    "prepublish": "npm run build",
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Airam Rguez",
@@ -13,5 +19,11 @@
     "cors": "^2.8.3",
     "express": "^4.15.2",
     "realm": "^1.2.0"
+  },
+  "devDependencies": {
+    "rollup": "^0.41.6",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0"
   }
 }
