@@ -1,10 +1,21 @@
 extends:
   - google
+  - prettier
   - plugin:jasmine/recommended
 installedESLint: true
+parserOptions:
+  ecmaVersion: 2016
+  sourceType: module
 rules:
+  prettier/prettier:
+    error:
+      trailingComma: es6
+      singleQuote: true
   require-jsdoc: off
 plugins:
+  - prettier
   - jasmine
 env:
+  es6: true
+  node: true
   jasmine: true
