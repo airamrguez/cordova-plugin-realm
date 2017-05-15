@@ -16,13 +16,10 @@ var utils = {
     });
   },
   normalizeSchema: function(results, schemas, schema) {
-    console.log('schema ->', schema);
     var dateProperties = utils.getPropsOfType(schema, 'date');
-    console.log('Date props ->', dateProperties);
     dateProperties.forEach(function(prop) {
       results.forEach(function(result) {
         if (result[prop] !== null) {
-          console.log('Creo fecha de ->', result[prop]);
           result[prop] = new Date(result[prop]);
         }
       });
