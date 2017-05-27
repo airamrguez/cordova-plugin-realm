@@ -103,8 +103,7 @@ cordova build
 Realm plugin files are exposed under `cordova.plugins.realm`.
 
 ```js
-var realmPlugin = cordova.plugins.realm;
-var Realm = realmPlugin.Realm;
+var Realm = cordova.plugins.realm;
 
 Realm.init({ schema: ['Person', 'Car'] }, function(realm) {
   realm.create('Person', json, true, function(success, error) {
