@@ -36,7 +36,7 @@
 
   <platform name="ios">
     <!-- Eventually Cordova will support xcworkspace so this plugin will use cocoapods. -->
-    <!--<framework src="Realm" type="podspec" spec="~> 2.1.0" />-->
+    <framework src="Realm" type="podspec" spec="~> 2.1.0" />
     <framework src="libc++.tbd" />
     <framework src="libz.tbd" />
     <framework src="src/ios/Realm.framework" custom="true" />
