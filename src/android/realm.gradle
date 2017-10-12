@@ -1,11 +1,10 @@
-apply plugin: 'com.android.application'
+if (!project.hasProperty('cdvMinSdkVersion') || cdvMinSdkVersion < 15) {
+    ext.cdvMinSdkVersion = 15;
+}
 
-def minSdkVersion = 15
-
-if(cdvMinSdkVersion == null) {
-    ext.cdvMinSdkVersion = minSdkVersion;
-} else if (cdvMinSdkVersion.toInteger() < minSdkVersion) {
-    ext.cdvMinSdkVersion = minSdkVersion;
+// For Push SDK, SDK version must be at least 23
+if (!project.hasProperty('cdvCompileSdkVersion') || cdvCompileSdkVersion < 23) {
+    ext.cdvCompileSdkVersion = 23;
 }
 
 repositories{
@@ -19,13 +18,6 @@ repositories{
     }
 }
 
-dependencies {
-    compile 'com.squareup:javawriter:2.5.1'
-    compile 'com.facebook.stetho:stetho:1.4.1'
-    compile 'com.uphyca:stetho_realm:2.0.0'
-    compile 'com.google.code.gson:gson:2.3'
-}
-
 android {
     packagingOptions {
         exclude 'META-INF/NOTICE'
@@ -33,4 +25,18 @@ android {
     }
 }
 
-apply plugin: 'realm-android'
+
+buildscript {
+	repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:+'
+        classpath 'io.realm:realm-gradle-plugin:3.7.2'
+    }
+}
+
+ext.postBuildExtras = {
+    apply plugin: io.realm.gradle.Realm
+}
