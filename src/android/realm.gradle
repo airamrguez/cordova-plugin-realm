@@ -25,18 +25,6 @@ android {
     }
 }
 
-
-buildscript {
-	repositories {
-        jcenter()
-        mavenLocal()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:+'
-        classpath 'io.realm:realm-gradle-plugin:3.7.2'
-    }
-}
-
 ext.postBuildExtras = {
-    apply plugin: io.realm.gradle.Realm
+    apply plugin: 'realm-android'
 }

@@ -88,5 +88,6 @@
 
   <hook type="before_plugin_install" src="hooks/copyResources.js" />
   <hook type="before_plugin_install" src="hooks/addProjectHooks.js" />
+  <hook type="before_plugin_install" src="hooks/patchAndroidGradle.js" />
   <hook type="before_plugin_uninstall" src="hooks/removeResources.js" />
 </plugin>
