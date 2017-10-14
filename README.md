@@ -14,34 +14,6 @@ This plugin provides an interface to Realm mobile database for iOS, Android and 
 cordova plugin add https://github.com/airamrguez/cordova-plugin-realm
 ```
 
-Be patient. It will take a while.
-
-### Android Installation
-
-**IMPORTANT**: On Android you have to **manually** add the Realm classpath dependency. Your `[YOUR_CORDOVA_PROJECT]/platforms/android/build.gradle` file should look like the code below:
-
-[**If you think that this step should be avoided then upvote the opened JIRA ticket by clicking here.**](https://issues.apache.org/jira/browse/CB-11664)
-
-```groovy
-[...]
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-
-    // Switch the Android Gradle plugin version requirement depending on the
-    // installed version of Gradle. This dependency is documented at
-    // http://tools.android.com/tech-docs/new-build-system/version-compatibility
-    // and https://issues.apache.org/jira/browse/CB-8143
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'io.realm:realm-gradle-plugin:2.0.2'
-    }
-}
-[...]
-```
-
 ## Browser
 
 On your project root directory add the browser platform:
