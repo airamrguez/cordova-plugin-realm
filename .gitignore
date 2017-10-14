@@ -5,3 +5,8 @@ realm-object-server
 winstom.realm*
 default.realm*
 src/browser/server/bin/cdv-realm
+
+# For development purposes.
+src/ios/Realm.zip
+src/ios/realm-framework
+src/ios/realm-objc-*
