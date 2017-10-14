@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 module.exports = function(ctx) {
     var fs = ctx.requireCordovaModule('fs'),
         path = ctx.requireCordovaModule('path'),
