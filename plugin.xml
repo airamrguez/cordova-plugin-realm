@@ -84,8 +84,6 @@
       <runs />
     </js-module>
 
-    <hook type="after_plugin_install" src="hooks/installBrowserDeps.js" />
-    <hook type="before_serve" src="hooks/startServer.js" />
   </platform>
 
   <engines>
