@@ -155,11 +155,9 @@ function onExecuteSuccess(queryBuilder, success) {
   return function(data) {
     // Delete method does not return anything.
     if (data) {
-      return success(new RealmResults(
-        queryBuilder,
-        data.realmResultsId,
-        data.results
-      ));
+      return success(
+        new RealmResults(queryBuilder, data.realmResultsId, data.results)
+      );
     }
     return success();
   };
@@ -190,16 +188,20 @@ Object.keys(executionQueries).forEach(function(method) {
       return;
     }
     var args = Array.prototype.slice.call(arguments);
+    var argsLen = args.length;
     var signatures = executionQueries[method].signatures;
     var validArgs = checkArgs(args, signatures);
-    var success = args[args.length - 1];
+    var success = args[argsLen - 1];
+    var sortArgs = args.slice(0, argsLen - 1);
     if (validArgs) {
       var realmInstanceID = this.config.realmInstanceID;
-      exec(onExecuteSuccess(this, success), null, 'RealmPlugin', method, [
-        realmInstanceID,
-        this.schemaName,
-        this.ops
-      ]);
+      exec(
+        onExecuteSuccess(this, success),
+        null,
+        'RealmPlugin',
+        method,
+        [realmInstanceID, this.schemaName, this.ops].concat(sortArgs)
+      );
     } else {
       throw new Error(
         'invalid arguments supplied to method ' +

@@ -3,7 +3,7 @@ var checkArgs = require('./checkArgs');
 var Types = require('./Types');
 var utils = require('./utils');
 
-var findSchema = utils.findSchema;
+var findModel = utils.findModel;
 var normalizeSchema = utils.normalizeSchema;
 
 /**
@@ -75,11 +75,11 @@ function RealmResults(queryBuilder, realmResultsId, results) {
 
   var schemas = queryBuilder.config.schemas;
   var schemaName = queryBuilder.schemaName;
-  var schema = findSchema(schemas, schemaName);
+  var schema = findModel(schemas, schemaName);
   if (!schema) {
     throw new Error(schemaName + ' schema not found');
   }
-  setProps(this, normalizeSchema(results, schemas, schema));
+  setProps(this, utils.retrocycle(normalizeSchema(results, schemas, schema)));
 
   [
     'every',
