@@ -22,10 +22,9 @@ function realmObjectToPlainObject(object, path) {
 
   return Object.keys(properties).reduce((plain, key) => {
     if (object[key] instanceof Realm.Object) {
-      const nextPath = path;
       return {
         ...plain,
-        [key]: realmObjectToPlainObject(object[key], nextPath)
+        [key]: realmObjectToPlainObject(object[key], path)
       };
     }
     if (object[key] instanceof Realm.List) {
