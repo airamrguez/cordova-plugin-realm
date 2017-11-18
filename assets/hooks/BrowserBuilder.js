@@ -10,7 +10,7 @@ function generateSource(targetDest, templateName, schemas) {
   });
   utils.writeFile(targetDest, objectsModel, function(err) {
     if (err) {
-      throw new Error('could not write schema @', targetDest);
+      throw new Error('could not write schema @ ' + targetDest);
     }
     console.info('Created ', targetDest);
   });
@@ -24,21 +24,32 @@ function BrowserBuilder(project, schemas) {
 BrowserBuilder.prototype.generateSourceFiles = function() {
   var project = this.project;
   var schemas = this.schemas;
-  var fileName = 'schemaProxy.js';
-  var pluginBrowserPath = path.join('browser', 'client', fileName);
-  var browserPlatformDir = path.resolve(
-    project.projectRoot,
-    'platforms',
-    'browser',
-    'www',
-    'plugins',
-    'cordova-plugin-realm',
-    'src',
-    pluginBrowserPath
-  );
-  var pluginDir = path.resolve(project.pluginSrcDir, pluginBrowserPath);
-  generateSource(pluginDir, 'Browser', schemas);
-  generateSource(browserPlatformDir, 'BrowserAMD', schemas);
+  var pluginBrowserPath = path.join('browser', 'client', 'schemaProxy.js');
+  ['www' /*, 'platform_www'*/]
+    .map(function(part) {
+      return {
+        tpl: 'BrowserAMD',
+        dir: path.resolve(
+          project.projectRoot,
+          'platforms',
+          'browser',
+          part,
+          'plugins',
+          'cordova-plugin-realm',
+          'src',
+          pluginBrowserPath
+        )
+      };
+    })
+    .concat([
+      {
+        tpl: 'Browser',
+        dir: path.resolve(project.pluginSrcDir, pluginBrowserPath)
+      }
+    ])
+    .forEach(function(item) {
+      generateSource(item.dir, item.tpl, schemas);
+    });
 };
 
 module.exports = BrowserBuilder;
