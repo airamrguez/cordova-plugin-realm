@@ -4,11 +4,12 @@ const cors = require('cors');
 const Realm = require('realm');
 
 const RealmQuery = require('./RealmQuery');
+const { isNil, resultsToPlainArray } = require('./utils');
 const utils = require('../../../../www/utils');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 
 const realms = new Map();
 const realmResults = new Map();
@@ -16,8 +17,13 @@ const realmResults = new Map();
 app.post('/initialize', (req, res) => {
   const { configuration, schema } = req.body;
 
+  const { schemaVersion } = configuration;
+
   const realmID = realms.size;
-  const realm = new Realm({ schema: schema.map(s => Object.create(s)) });
+  const realm = new Realm({
+    schema: schema.map(s => Object.create(s)),
+    schemaVersion
+  });
   realms.set(realmID, realm);
   res.send({
     realmInstanceID: realmID,
@@ -33,49 +39,70 @@ app.post('/create', (req, res) => {
     json: rawJSON,
     update = false
   } = req.body;
+  if (isNil(schemaName)) {
+    res.status(400);
+    res.send({ error: { msg: 'schemaName cannot be null or undefined' } });
+    return;
+  }
   const realm = realms.get(realmInstanceID);
+  if (realm === undefined) {
+    res.status(400);
+    res.send(new Error('realm instance not found. Did you call initialize?'));
+  }
   const schemas = realm.schema;
-  const schema = schemas.find(s => s.name === schemaName);
-  const json = utils.normalizeSchema(rawJSON, realm.schema, schema);
+  const model = schemas.find(s => s.name === schemaName);
+  if (isNil(model)) {
+    res.status(400);
+    res.send({ error: { msg: `model ${schemaName} not found in schema` } });
+    return;
+  }
+  const json = utils.normalizeSchema(rawJSON, schemas, model);
   realm.write(() => {
-    if (Array.isArray(json)) {
-      json.forEach(item => realm.create(schemaName, item, update));
-    } else {
-      realm.create(schemaName, json, update);
+    try {
+      if (Array.isArray(json)) {
+        json.forEach(item => {
+          realm.create(schemaName, item, update);
+        });
+      } else {
+        realm.create(schemaName, json, update);
+      }
+    } catch (error) {
+      res.status(400);
+      console.trace(error);
+      res.send(error);
+      return;
     }
     res.send({});
   });
 });
 
 app.post('/findAll', (req, res) => {
-  const {
-    realmInstanceID,
-    schemaName,
-    ops
-  } = req.body;
+  const { realmInstanceID, schemaName, ops } = req.body;
   const realm = realms.get(realmInstanceID);
   const results = RealmQuery.findAll(realm, schemaName, ops);
   const realmResultsId = realmResults.size;
   realmResults.set(realmResultsId, results);
   res.send({
     realmResultsId,
-    results
+    results: resultsToPlainArray(results)
   });
 });
 
 app.post('/findAllSorted', (req, res) => {
-  const {
-    realmInstanceID,
-    schemaName,
-    ops
-  } = req.body;
+  const { realmInstanceID, schemaName, ops, sortField, sortOrder } = req.body;
   const realm = realms.get(realmInstanceID);
-  const results = RealmQuery.findAllSorted(realm, schemaName, ops);
+  const results = RealmQuery.findAllSorted(
+    realm,
+    schemaName,
+    ops,
+    sortField,
+    sortOrder
+  );
   const realmResultsId = realmResults.size;
   realmResults.set(realmResultsId, results);
   res.send({
     realmResultsId,
-    results
+    results: resultsToPlainArray(results)
   });
 });
 

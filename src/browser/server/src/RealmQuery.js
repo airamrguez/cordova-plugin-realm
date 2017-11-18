@@ -19,14 +19,13 @@ function addImplicitAnd(ops) {
   while (i < numOfops) {
     const op = ops[i];
     const { name } = op;
-    const { name: nextOpName } = i + 1 < numOfops
-      ? ops[i + 1]
-      : { name: undefined };
+    const { name: nextOpName } =
+      i + 1 < numOfops ? ops[i + 1] : { name: undefined };
     if (
       nextOpName === 'beginGroup' ||
-        nextOpName === 'or' ||
-        nextOpName === 'not' ||
-        nextOpName === undefined
+      nextOpName === 'or' ||
+      nextOpName === 'not' ||
+      nextOpName === undefined
     ) {
       expression.push(op);
     } else if (nextOpName !== undefined) {
@@ -61,97 +60,88 @@ function process(ops) {
 
 function createQuery(expression) {
   return addImplicitAnd(expression)
-    .reduce(
-      (query, op) => {
-        const args = op.args;
-        switch (op.name) {
-          case 'beginGroup':
-            query.push('(');
-            break;
-          case 'beginsWith':
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `BEGINSWITH${caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
-            break;
-          case 'between': {
-            const field = args[0];
-            const arg1 = escapeValue(args[1]);
-            const arg2 = escapeValue(args[2]);
-            query.push(`${field} >= ${arg1} and ${field} <= ${arg2}`);
-            break;
-          }
-          case 'contains': {
-            const field = args[0];
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `CONTAINS${caseSensitive ? '' : '[c]'}`;
-            const arg1 = escapeValue(args[1]);
-            query.push(`${field} ${caseOp} ${arg1}`);
-            break;
-          }
-          case 'endGroup':
-            query.push(')');
-            break;
-          case 'endsWith': {
-            const field = args[0];
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `ENDSWITH${caseSensitive ? '' : '[c]'}`;
-            const arg1 = escapeValue(args[1]);
-            query.push(`${field} ${caseOp} ${arg1}`);
-            break;
-          }
-          case 'equalTo': {
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `==${caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
-            break;
-          }
-          case 'greaterThan':
-            query.push(`${args[0]} > ${escapeValue(args[1])}`);
-            break;
-          case 'greaterThanOrEqualTo':
-            query.push(`${args[0]} >= ${escapeValue(args[1])}`);
-            break;
-          case 'in': {
-            console.warn('Not supported in the browser');
-            // FIXME!
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `IN${caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} IN ${escapeValue(args[1])}`);
-            break;
-          }
-          case 'isEmpty':
-          case 'isNotEmpty':
-          case 'isNotNull':
-          case 'isNull':
-            break;
-          case 'lessThan':
-            query.push(`${args[0]} < ${escapeValue(args[1])}`);
-            break;
-          case 'lessThanOrEqualTo':
-            query.push(`${args[0]} <= ${escapeValue(args[1])}`);
-            break;
-          case 'notEqualTo': {
-            const caseSensitive = args.length === 3 &&
-              args[2] === Case.SENSITIVE;
-            const caseOp = `!={caseSensitive ? '' : '[c]'}`;
-            query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
-            break;
-          }
-          case 'not':
-          case 'and':
-          case 'or':
-            query.push(op.name);
-            break;
+    .reduce((query, op) => {
+      const args = op.args;
+      switch (op.name) {
+        case 'beginGroup':
+          query.push('(');
+          break;
+        case 'beginsWith':
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `BEGINSWITH${caseSensitive ? '' : '[c]'}`;
+          query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
+          break;
+        case 'between': {
+          const field = args[0];
+          const arg1 = escapeValue(args[1]);
+          const arg2 = escapeValue(args[2]);
+          query.push(`${field} >= ${arg1} and ${field} <= ${arg2}`);
+          break;
         }
-        return query;
-      },
-      []
-    )
+        case 'contains': {
+          const field = args[0];
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `CONTAINS${caseSensitive ? '' : '[c]'}`;
+          const arg1 = escapeValue(args[1]);
+          query.push(`${field} ${caseOp} ${arg1}`);
+          break;
+        }
+        case 'endGroup':
+          query.push(')');
+          break;
+        case 'endsWith': {
+          const field = args[0];
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `ENDSWITH${caseSensitive ? '' : '[c]'}`;
+          const arg1 = escapeValue(args[1]);
+          query.push(`${field} ${caseOp} ${arg1}`);
+          break;
+        }
+        case 'equalTo': {
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `==${caseSensitive ? '' : '[c]'}`;
+          query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
+          break;
+        }
+        case 'greaterThan':
+          query.push(`${args[0]} > ${escapeValue(args[1])}`);
+          break;
+        case 'greaterThanOrEqualTo':
+          query.push(`${args[0]} >= ${escapeValue(args[1])}`);
+          break;
+        case 'in': {
+          console.warn('Not supported in the browser');
+          // FIXME!
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `IN${caseSensitive ? '' : '[c]'}`;
+          query.push(`${args[0]} IN ${escapeValue(args[1])}`);
+          break;
+        }
+        case 'isEmpty':
+        case 'isNotEmpty':
+        case 'isNotNull':
+        case 'isNull':
+          break;
+        case 'lessThan':
+          query.push(`${args[0]} < ${escapeValue(args[1])}`);
+          break;
+        case 'lessThanOrEqualTo':
+          query.push(`${args[0]} <= ${escapeValue(args[1])}`);
+          break;
+        case 'notEqualTo': {
+          const caseSensitive = args.length === 3 && args[2] === Case.SENSITIVE;
+          const caseOp = `!={caseSensitive ? '' : '[c]'}`;
+          query.push(`${args[0]} ${caseOp} ${escapeValue(args[1])}`);
+          break;
+        }
+        case 'not':
+        case 'and':
+        case 'or':
+          query.push(op.name);
+          break;
+      }
+      return query;
+    }, [])
     .join(' ');
 }
 
@@ -165,21 +155,25 @@ function findAll(realm, schemaName, ops) {
   return objects.slice(offset, limit);
 }
 
-function findAllSorted(realm, schemaName, ops) {
-  // const { ops, args } = req.body;
-  let sortDescriptor;
-  if (args.length === 1) {
-    sortDescriptor = args[0];
-  } else if (args.length === 2) {
-    sortDescriptor = [args[0], args[1]];
+function findAllSorted(realm, schemaName, ops, sortField, sortOrder) {
+  const { expression, limit, offset } = process(ops);
+
+  let objects = realm.objects(schemaName);
+  if (expression.length > 0) {
+    objects = objects.filtered(createQuery(expression));
   }
 
-  const { expression, limit, offset } = process(ops);
-  return realm
-    .objects(schemaName)
-    .filtered(createQuery(expression))
-    .slice(offset, limit)
-    .sorted(sortDescriptor);
+  let sortDescriptor;
+  if (sortOrder === undefined) {
+    sortDescriptor = sortField;
+  } else {
+    sortDescriptor = [sortField, sortOrder];
+  }
+  if (sortDescriptor !== undefined) {
+    objects = objects.sorted(sortDescriptor);
+  }
+
+  return objects.slice(offset, limit);
 }
 
 module.exports = {
