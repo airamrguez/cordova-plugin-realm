@@ -4,7 +4,7 @@ var Types = require('./Types');
 var utils = require('./utils');
 
 var findModel = utils.findModel;
-var normalizeSchema = utils.normalizeSchema;
+var normalizeDates = utils.normalizeDates;
 
 /**
  * setProps makes a result instance behaves like an array.
@@ -79,7 +79,7 @@ function RealmResults(queryBuilder, realmResultsId, results) {
   if (!schema) {
     throw new Error(schemaName + ' schema not found');
   }
-  setProps(this, utils.retrocycle(normalizeSchema(results, schemas, schema)));
+  setProps(this, utils.retrocycle(normalizeDates(results, schemas, schema)));
 
   [
     'every',

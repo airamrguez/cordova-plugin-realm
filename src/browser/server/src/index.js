@@ -56,7 +56,7 @@ app.post('/create', (req, res) => {
     res.send({ error: { msg: `model ${schemaName} not found in schema` } });
     return;
   }
-  const json = utils.normalizeSchema(rawJSON, schemas, model);
+  const json = utils.normalizeDates(rawJSON, schemas, model);
   realm.write(() => {
     try {
       if (Array.isArray(json)) {

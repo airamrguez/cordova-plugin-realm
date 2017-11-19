@@ -101,7 +101,7 @@ var utils = {
       }
     });
   },
-  normalizeSchema: function(results, schema, model) {
+  normalizeDates: function(results, schema, model) {
     if (isNil(results) || (Array.isArray(results) && results.length === 0)) {
       return results;
     }
@@ -123,7 +123,7 @@ var utils = {
 
       innerModels.forEach(function(referencedModel, i) {
         iterateResults(results, function(result) {
-          utils.normalizeSchema(result[props[i]], schema, referencedModel);
+          utils.normalizeDates(result[props[i]], schema, referencedModel);
         });
       });
     });
